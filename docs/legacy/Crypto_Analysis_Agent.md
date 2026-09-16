@@ -4,7 +4,7 @@
 
 - 路徑：`C:\Users\Ouyang\Desktop\My AI Agent\Crypto Analysis Agent`
 - 狀態：production　信任度：medium
-- 檔案數：46088
+- 檔案數：623
 
 ## 已驗證的事實（CEO 派工時的優先依據）
 
@@ -16,59 +16,27 @@
 - 無法直接推送Instegram
 - 盤面分析不準確
 
-## ⚠️ 含疑似金鑰的檔案（移植前必須先清掉，並在交易所端輪換）
-
-- `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/git/remote.py`
-- `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/numpy/distutils/mingw32ccompiler.py`
-- `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/plotly/io/_orca.py`
-- `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/pyarrow/tests/test_flight.py`
-- `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/pyarrow/tests/test_fs.py`
-- `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/torch/hub.py`
-- `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/tornado/test/auth_test.py`
-- `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/tornado/test/web_test.py`
-- `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/git/remote.py`
-- `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/plotly/io/_orca.py`
-- `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/pyarrow/tests/test_flight.py`
-- `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/pyarrow/tests/test_fs.py`
-- `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/torch/hub.py`
-- `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/tornado/test/auth_test.py`
-- `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/tornado/test/web_test.py`
-- `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/git/remote.py`
-- `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/plotly/io/_orca.py`
-- `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/pyarrow/tests/test_flight.py`
-- `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/pyarrow/tests/test_fs.py`
-- `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/torch/hub.py`
-- `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/tornado/test/auth_test.py`
-- `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/tornado/test/web_test.py`
-- `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/git/remote.py`
-- `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/plotly/io/_orca.py`
-- `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/pyarrow/tests/test_flight.py`
-- `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/pyarrow/tests/test_fs.py`
-- `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/torch/hub.py`
-- `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/tornado/test/auth_test.py`
-- `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/tornado/test/web_test.py`
-
 ## 依能力分類
 
 ### _未分類
 
 | 檔案 | 行數 | 主要依賴 | 決定 |
 |---|---|---|---|
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/scipy/stats/_continuous_distns.py` | 12544 | _censored_data, _constants, _distn_infrastructure, _ksstats, _tukeylambda_stats | |
-| `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/scipy/stats/_continuous_distns.py` | 12544 | _censored_data, _constants, _distn_infrastructure, _ksstats, _tukeylambda_stats | |
-| `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/scipy/stats/_continuous_distns.py` | 12544 | _censored_data, _constants, _distn_infrastructure, _ksstats, _tukeylambda_stats | |
-| `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/scipy/stats/_continuous_distns.py` | 12544 | _censored_data, _constants, _distn_infrastructure, _ksstats, _tukeylambda_stats | |
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/torch/testing/_internal/distributed/distributed_test.py` | 10495 | collections, contextlib, copy, dataclasses, datetime | |
-| `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/torch/testing/_internal/distributed/distributed_test.py` | 10495 | collections, contextlib, copy, dataclasses, datetime | |
-| `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/torch/testing/_internal/distributed/distributed_test.py` | 10495 | collections, contextlib, copy, dataclasses, datetime | |
-| `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/torch/testing/_internal/distributed/distributed_test.py` | 10495 | collections, contextlib, copy, dataclasses, datetime | |
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/mpmath/function_docs.py` | 10202 | — | |
-| `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/mpmath/function_docs.py` | 10202 | — | |
-| `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/mpmath/function_docs.py` | 10202 | — | |
-| `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/mpmath/function_docs.py` | 10202 | — | |
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/torch/_inductor/ir.py` | 9967 | __future__, codegen, collections, contextlib, copy | |
-| `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/torch/_inductor/ir.py` | 9967 | __future__, codegen, collections, contextlib, copy | |
-| `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/torch/_inductor/ir.py` | 9967 | __future__, codegen, collections, contextlib, copy | |
+| `Crypto Analysis/m1_5_daily/model_manager.py` | 696 | __future__, datetime, json, logging, m1_5_daily | |
+| `Crypto Analysis/m6_report/ig_publisher.py` | 570 | __future__, argparse, json, logging, os | |
+| `Crypto Analysis/dev_sandboxvenv_py311/Scripts/Activate.ps1` | 503 | — | |
+| `Crypto Analysis/dev_tool/sim/cycle_simulator.py` | 493 | __future__, dataclasses, datetime, dev_tool, json | |
+| `Crypto Analysis/m2_analyzer/indicators.py` | 472 | __future__, math, numpy, typing | |
+| `Crypto Analysis/dev_tool/stress/scenarios_p3c.py` | 402 | __future__, contextlib, datetime, dev_tool, numpy | |
+| `Crypto Analysis/m5_backtest/_apply_calibration.py` | 398 | collections, m5_backtest, numpy, os, shared | |
+| `Crypto Analysis/m1_5_daily/monthly_report.py` | 320 | __future__, argparse, calendar, datetime, json | |
+| `Crypto Analysis/dev_tool/stress/scenarios.py` | 316 | __future__, dev_tool, typing | |
+| `Crypto Analysis/m3_signals/confirmation_score.py` | 304 | __future__, dataclasses, shared | |
+| `Crypto Analysis/run_daily.py` | 297 | __future__, argparse, datetime, json, m1_5_daily | |
+| `Crypto Analysis/monitor/health_check.py` | 277 | argparse, data, datetime, json, logging | |
+| `Crypto Analysis/m3_signals/funding_zscore.py` | 276 | __future__, argparse, dataclasses, m3_signals, numpy | |
+| `Crypto Analysis/m3_5_dnn/features.py` | 270 | m2_analyzer, os, sys | |
+| `Crypto Analysis/m3_signals/coinglass.py` | 266 | os, requests, time | |
 
 ### backtest-walkforward
 
@@ -90,145 +58,74 @@
 | `Crypto Analysis/CLAUDE.md` | 346 | — | |
 | `Crypto Analysis/dev_tool/tune/m4_lab.py` | 332 | __future__, copy, dataclasses, dev_tool, json | |
 
-### canva-content
-
-| 檔案 | 行數 | 主要依賴 | 決定 |
-|---|---|---|---|
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/networkx/drawing/nx_pylab.py` | 2979 | collections, inspect, itertools, math, matplotlib | |
-| `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/networkx/drawing/nx_pylab.py` | 2979 | collections, inspect, itertools, math, matplotlib | |
-| `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/networkx/drawing/nx_pylab.py` | 2979 | collections, inspect, itertools, math, matplotlib | |
-| `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/networkx/drawing/nx_pylab.py` | 2979 | collections, inspect, itertools, math, matplotlib | |
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/networkx/drawing/tests/test_pylab.py` | 1583 | itertools, matplotlib, networkx, os, pytest | |
-| `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/networkx/drawing/tests/test_pylab.py` | 1583 | itertools, matplotlib, networkx, os, pytest | |
-| `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/networkx/drawing/tests/test_pylab.py` | 1583 | itertools, matplotlib, networkx, os, pytest | |
-| `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/networkx/drawing/tests/test_pylab.py` | 1583 | itertools, matplotlib, networkx, os, pytest | |
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/sympy/plotting/plot.py` | 1235 | sympy | |
-| `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/sympy/plotting/plot.py` | 1235 | sympy | |
-| `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/sympy/plotting/plot.py` | 1235 | sympy | |
-| `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/sympy/plotting/plot.py` | 1235 | sympy | |
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/torch/utils/tensorboard/writer.py` | 1220 | _convert_np, _embedding, _onnx_graph, _pytorch_graph, _utils | |
-| `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/torch/utils/tensorboard/writer.py` | 1220 | _convert_np, _embedding, _onnx_graph, _pytorch_graph, _utils | |
-| `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/torch/utils/tensorboard/writer.py` | 1220 | _convert_np, _embedding, _onnx_graph, _pytorch_graph, _utils | |
-
 ### data-integrity
 
 | 檔案 | 行數 | 主要依賴 | 決定 |
 |---|---|---|---|
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/pandas/core/generic.py` | 14026 | __future__, collections, copy, datetime, functools | |
-| `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/pandas/core/generic.py` | 14026 | __future__, collections, copy, datetime, functools | |
-| `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/pandas/core/generic.py` | 14026 | __future__, collections, copy, datetime, functools | |
-| `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/pandas/core/generic.py` | 14026 | __future__, collections, copy, datetime, functools | |
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/pandas/core/frame.py` | 12725 | __future__, collections, datetime, functools, inspect | |
-| `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/pandas/core/frame.py` | 12725 | __future__, collections, datetime, functools, inspect | |
-| `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/pandas/core/frame.py` | 12725 | __future__, collections, datetime, functools, inspect | |
-| `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/pandas/core/frame.py` | 12725 | __future__, collections, datetime, functools, inspect | |
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/torch/fx/experimental/symbolic_shapes.py` | 8364 | __future__, abc, atexit, bisect, collections | |
-| `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/torch/fx/experimental/symbolic_shapes.py` | 8364 | __future__, abc, atexit, bisect, collections | |
-| `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/torch/fx/experimental/symbolic_shapes.py` | 8364 | __future__, abc, atexit, bisect, collections | |
-| `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/torch/fx/experimental/symbolic_shapes.py` | 8364 | __future__, abc, atexit, bisect, collections | |
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/torch/testing/_internal/common_utils.py` | 6047 | __main__, argparse, collections, contextlib, copy | |
-| `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/torch/testing/_internal/common_utils.py` | 6047 | __main__, argparse, collections, contextlib, copy | |
-| `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/torch/testing/_internal/common_utils.py` | 6047 | __main__, argparse, collections, contextlib, copy | |
+| `Crypto Analysis/system_guide.html` | 904 | — | |
+| `Crypto Analysis/dev_tool/release/readiness.py` | 473 | __future__, dataclasses, datetime, dev_tool, json | |
+| `Crypto Analysis/CLAUDE.md` | 346 | — | |
+| `Crypto Analysis/shared/training_metadata.py` | 131 | __future__, datetime, hashlib, json, logging | |
+| `Crypto Analysis/m3_5_dnn/weights/version_registry.json` | 98 | — | |
+| `Crypto Analysis/m4_risk/weights/version_registry.json` | 87 | — | |
+| `Crypto Analysis/m4_risk/weights/upgrade_log.json` | 56 | — | |
+| `Crypto Analysis/m4_risk/weights/backups/champion_meta_pre13dim_20260605.json` | 44 | — | |
+| `Crypto Analysis/m4_risk/weights/champion_meta.json` | 44 | — | |
 
 ### exchange-position-guard
 
 | 檔案 | 行數 | 主要依賴 | 決定 |
 |---|---|---|---|
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/torch/testing/_internal/common_methods_invocations.py` | 27256 | collections, copy, enum, functools, itertools | |
-| `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/torch/testing/_internal/common_methods_invocations.py` | 27256 | collections, copy, enum, functools, itertools | |
-| `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/torch/testing/_internal/common_methods_invocations.py` | 27256 | collections, copy, enum, functools, itertools | |
-| `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/torch/testing/_internal/common_methods_invocations.py` | 27256 | collections, copy, enum, functools, itertools | |
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/plotly/graph_objs/_figurewidget.py` | 25399 | plotly | |
-| `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/plotly/graph_objs/_figurewidget.py` | 25399 | plotly | |
-| `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/plotly/graph_objs/_figurewidget.py` | 25399 | plotly | |
-| `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/plotly/graph_objs/_figurewidget.py` | 25399 | plotly | |
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/plotly/graph_objs/_figure.py` | 25395 | plotly | |
-| `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/plotly/graph_objs/_figure.py` | 25395 | plotly | |
-| `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/plotly/graph_objs/_figure.py` | 25395 | plotly | |
-| `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/plotly/graph_objs/_figure.py` | 25395 | plotly | |
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/torchgen/packaged/ATen/native/native_functions.yaml` | 16173 | inheriting | |
-| `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/torchgen/packaged/ATen/native/native_functions.yaml` | 16173 | inheriting | |
-| `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/torchgen/packaged/ATen/native/native_functions.yaml` | 16173 | inheriting | |
-
-### exchange-reconciliation
-
-| 檔案 | 行數 | 主要依賴 | 決定 |
-|---|---|---|---|
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/pandas/core/indexes/base.py` | 7944 | __future__, collections, copy, datetime, functools | |
-| `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/pandas/core/indexes/base.py` | 7944 | __future__, collections, copy, datetime, functools | |
-| `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/pandas/core/indexes/base.py` | 7944 | __future__, collections, copy, datetime, functools | |
-| `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/pandas/core/indexes/base.py` | 7944 | __future__, collections, copy, datetime, functools | |
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/torch/_dynamo/guards.py` | 4892 | __future__, ast, builtins, collections, contextlib | |
-| `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/torch/_dynamo/guards.py` | 4892 | __future__, ast, builtins, collections, contextlib | |
-| `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/torch/_dynamo/guards.py` | 4892 | __future__, ast, builtins, collections, contextlib | |
-| `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/torch/_dynamo/guards.py` | 4892 | __future__, ast, builtins, collections, contextlib | |
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/torch/_dynamo/trace_rules.py` | 4081 | abc, builtins, collections, contextlib, copy | |
-| `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/torch/_dynamo/trace_rules.py` | 4081 | abc, builtins, collections, contextlib, copy | |
-| `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/torch/_dynamo/trace_rules.py` | 4081 | abc, builtins, collections, contextlib, copy | |
-| `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/torch/_dynamo/trace_rules.py` | 4081 | abc, builtins, collections, contextlib, copy | |
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/narwhals/series.py` | 2951 | __future__, collections, functools, math, narwhals | |
-| `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/narwhals/series.py` | 2951 | __future__, collections, functools, math, narwhals | |
-| `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/narwhals/series.py` | 2951 | __future__, collections, functools, math, narwhals | |
-
-### macro-briefing
-
-| 檔案 | 行數 | 主要依賴 | 決定 |
-|---|---|---|---|
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/torch/testing/_internal/common_methods_invocations.py` | 27256 | collections, copy, enum, functools, itertools | |
-| `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/torch/testing/_internal/common_methods_invocations.py` | 27256 | collections, copy, enum, functools, itertools | |
-| `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/torch/testing/_internal/common_methods_invocations.py` | 27256 | collections, copy, enum, functools, itertools | |
-| `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/torch/testing/_internal/common_methods_invocations.py` | 27256 | collections, copy, enum, functools, itertools | |
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/pip/_vendor/pyparsing/core.py` | 6116 | abc, actions, collections, copy, diagram | |
-| `Crypto Analysis/dev_sandboxvenv_py311/Lib/site-packages/pip/_vendor/pyparsing/core.py` | 6116 | abc, actions, collections, copy, diagram | |
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/pkg_resources/_vendor/pyparsing/core.py` | 5815 | abc, actions, collections, copy, diagram | |
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/setuptools/_vendor/pyparsing/core.py` | 5815 | abc, actions, collections, copy, diagram | |
-| `Crypto Analysis/dev_sandboxvenv_py311/Lib/site-packages/pkg_resources/_vendor/pyparsing/core.py` | 5815 | abc, actions, collections, copy, diagram | |
-| `Crypto Analysis/dev_sandboxvenv_py311/Lib/site-packages/setuptools/_vendor/pyparsing/core.py` | 5815 | abc, actions, collections, copy, diagram | |
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/scipy/signal/_signaltools.py` | 5357 | __future__, _arraytools, _filter_design, _fir_filter_design, _ltisys | |
-| `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/scipy/signal/_signaltools.py` | 5357 | __future__, _arraytools, _filter_design, _fir_filter_design, _ltisys | |
-| `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/scipy/signal/_signaltools.py` | 5357 | __future__, _arraytools, _filter_design, _fir_filter_design, _ltisys | |
-| `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/scipy/signal/_signaltools.py` | 5357 | __future__, _arraytools, _filter_design, _fir_filter_design, _ltisys | |
-| `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/pygments/lexers/_lasso_builtins.py` | 5327 | — | |
+| `Crypto Analysis/signals/pending.json` | 2572 | — | |
+| `Crypto Analysis/m3_signals/signals.py` | 1332 | __future__, datetime, threading | |
+| `Crypto Analysis/m6_report/canva_content.py` | 1313 | __future__, argparse, json, m4_risk, pathlib | |
+| `Crypto Analysis/system_guide.html` | 904 | — | |
+| `Crypto Analysis/m4_risk/engine.py` | 673 | collections, datetime, m4_risk, math, os | |
+| `Crypto Analysis/run_pipeline.py` | 673 | __future__, argparse, data, datetime, json | |
+| `Crypto Analysis/reports/daily_summary_2026-05-31.json` | 514 | — | |
+| `Crypto Analysis/reports/daily_summary_2026-06-01.json` | 514 | — | |
+| `Crypto Analysis/reports/daily_summary_2026-08-05.json` | 514 | — | |
+| `Crypto Analysis/reports/daily_summary_2026-06-02.json` | 513 | — | |
+| `Crypto Analysis/reports/daily_summary_2026-06-07.json` | 513 | — | |
+| `Crypto Analysis/reports/daily_summary_2026-06-08.json` | 513 | — | |
+| `Crypto Analysis/reports/daily_summary_2026-06-09.json` | 513 | — | |
+| `Crypto Analysis/reports/daily_summary_2026-06-10.json` | 513 | — | |
+| `Crypto Analysis/reports/daily_summary_2026-06-11.json` | 513 | — | |
 
 ### market-data-collection
 
 | 檔案 | 行數 | 主要依賴 | 決定 |
 |---|---|---|---|
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/plotly/graph_objs/_figurewidget.py` | 25399 | plotly | |
-| `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/plotly/graph_objs/_figurewidget.py` | 25399 | plotly | |
-| `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/plotly/graph_objs/_figurewidget.py` | 25399 | plotly | |
-| `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/plotly/graph_objs/_figurewidget.py` | 25399 | plotly | |
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/plotly/graph_objs/_figure.py` | 25395 | plotly | |
-| `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/plotly/graph_objs/_figure.py` | 25395 | plotly | |
-| `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/plotly/graph_objs/_figure.py` | 25395 | plotly | |
-| `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/plotly/graph_objs/_figure.py` | 25395 | plotly | |
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/numpy/_core/_add_newdocs.py` | 7162 | numpy, textwrap | |
-| `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/numpy/_core/_add_newdocs.py` | 7162 | numpy, textwrap | |
-| `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/numpy/_core/_add_newdocs.py` | 7162 | numpy, textwrap | |
-| `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/numpy/_core/_add_newdocs.py` | 7162 | numpy, textwrap | |
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/scipy/cluster/hierarchy.py` | 4339 | bisect, collections, matplotlib, numpy, scipy | |
-| `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/scipy/cluster/hierarchy.py` | 4339 | bisect, collections, matplotlib, numpy, scipy | |
-| `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/scipy/cluster/hierarchy.py` | 4339 | bisect, collections, matplotlib, numpy, scipy | |
+| `Crypto Analysis/m3_signals/signal_adapter.py` | 3660 | __future__, collections, os, shared, sys | |
+| `Crypto Analysis/m5_backtest/m4_backtest.py` | 1073 | argparse, collections, concurrent, datetime, json | |
+| `Crypto Analysis/system_guide.html` | 904 | — | |
+| `Crypto Analysis/dev_sandbox/reports/stress_run_20260512_1600.json` | 897 | — | |
+| `Crypto Analysis/dev_sandbox/reports/stress_run_20260512_1656.json` | 897 | — | |
+| `Crypto Analysis/dev_sandbox/reports/stress_run_20260513_1314.json` | 897 | — | |
+| `Crypto Analysis/m5_backtest/engine.py` | 794 | collections, datetime, m2_analyzer, numpy, os | |
+| `Crypto Analysis/m1_5_daily/updater.py` | 741 | __future__, data, datetime, json, logging | |
+| `Crypto Analysis/m3_5_dnn/signal_adapter.py` | 692 | __future__, datetime, json, logging, m3_5_dnn | |
+| `Crypto Analysis/run_pipeline.py` | 673 | __future__, argparse, data, datetime, json | |
+| `Crypto Analysis/shared/indicator_engine.py` | 654 | __future__, collections, m2_analyzer, m3_signals, numpy | |
+| `Crypto Analysis/m5_backtest/train_m35.py` | 649 | argparse, data, datetime, json, m3_5_dnn | |
+| `Crypto Analysis/dev_sandbox/reports/stress_run_20260512_0354.json` | 645 | — | |
+| `Crypto Analysis/dev_sandbox/reports/stress_run_20260512_0356.json` | 645 | — | |
+| `Crypto Analysis/dev_sandbox/reports/stress_run_20260512_0357.json` | 645 | — | |
 
 ### pattern-analysis
 
 | 檔案 | 行數 | 主要依賴 | 決定 |
 |---|---|---|---|
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/altair/vegalite/v5/schema/vega-lite-schema.json` | 32223 | — | |
-| `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/altair/vegalite/v5/schema/vega-lite-schema.json` | 32223 | — | |
-| `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/altair/vegalite/v5/schema/vega-lite-schema.json` | 32223 | — | |
-| `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/altair/vegalite/v5/schema/vega-lite-schema.json` | 32223 | — | |
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/torch/testing/_internal/common_methods_invocations.py` | 27256 | collections, copy, enum, functools, itertools | |
-| `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/torch/testing/_internal/common_methods_invocations.py` | 27256 | collections, copy, enum, functools, itertools | |
-| `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/torch/testing/_internal/common_methods_invocations.py` | 27256 | collections, copy, enum, functools, itertools | |
-| `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/torch/testing/_internal/common_methods_invocations.py` | 27256 | collections, copy, enum, functools, itertools | |
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/altair/vegalite/v5/schema/core.py` | 27200 | __future__, _typing, altair, collections, json | |
-| `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/altair/vegalite/v5/schema/core.py` | 27200 | __future__, _typing, altair, collections, json | |
-| `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/altair/vegalite/v5/schema/core.py` | 27200 | __future__, _typing, altair, collections, json | |
-| `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/altair/vegalite/v5/schema/core.py` | 27200 | __future__, _typing, altair, collections, json | |
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/plotly/graph_objs/_figurewidget.py` | 25399 | plotly | |
-| `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/plotly/graph_objs/_figurewidget.py` | 25399 | plotly | |
-| `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/plotly/graph_objs/_figurewidget.py` | 25399 | plotly | |
+| `Crypto Analysis/m3_signals/signal_adapter.py` | 3660 | __future__, collections, os, shared, sys | |
+| `Crypto Analysis/shared/signal_schema.py` | 619 | __future__, dataclasses, math, typing | |
+| `Crypto Analysis/m4_risk/signal_receiver.py` | 452 | __future__, logging, m4_risk, os, shared | |
+| `Crypto Analysis/tests/test_e2e.py` | 353 | data, m1_5_daily, m3_5_dnn, m3_signals, m4_risk | |
+| `Crypto Analysis/reports/report_20260602T185449_BTCUSDT.html` | 124 | — | |
+| `Crypto Analysis/reports/report_20260602T191810_BTCUSDT.html` | 124 | — | |
+| `Crypto Analysis/reports/report_20260603T091027_BNBUSDT.html` | 124 | — | |
+| `Crypto Analysis/reports/report_20260714T084230_ETHUSDT.html` | 124 | — | |
+| `Crypto Analysis/reports/report_20260730T094852_BNBUSDT.html` | 124 | — | |
+| `Crypto Analysis/reports/report_20260805T084253_BNBUSDT.html` | 120 | — | |
 
 ### smc-analysis
 
@@ -255,9 +152,4 @@
 | 檔案 | 行數 | 主要依賴 | 決定 |
 |---|---|---|---|
 | `Crypto Analysis/CLAUDE.md` | 346 | — | |
-| `Crypto Analysis/dev_sandbox/venv_py311/Lib/site-packages/tornado/wsgi.py` | 269 | _typeshed, concurrent, io, sys, tornado | |
-| `Crypto Analysis/dev_sandbox/venv_py312/Lib/site-packages/tornado/wsgi.py` | 269 | _typeshed, concurrent, io, sys, tornado | |
-| `Crypto Analysis/dev_sandbox/venv_py313/Lib/site-packages/tornado/wsgi.py` | 269 | _typeshed, concurrent, io, sys, tornado | |
-| `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/tornado/wsgi.py` | 269 | _typeshed, concurrent, io, sys, tornado | |
-| `Crypto Analysis/dev_sandbox/venv_st/Lib/site-packages/pygments/lexers/_cocoa_builtins.py` | 76 | os, re | |
 | `Crypto Analysis/dev_sandbox/reports/py314_incompat_diagnostic.md` | 72 | — | |

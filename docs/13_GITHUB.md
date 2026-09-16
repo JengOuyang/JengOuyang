@@ -48,7 +48,7 @@ GitHub 只是讓這件事有一份不在你這台電腦上的副本。
   → lint_agents.py（33 項）
   → verify_isolation.py（職責 / 交接 / 權限 / OS 沙箱）
   → verify_docs_claims.py（文件說 44 個視圖，實際就得是 44 個）
-  → pytest（169 項）
+  → pytest（170 項）
 ```
 
 它還有一條 `schedule: "0 1 * * 1"`（每週一 09:00 台北）——

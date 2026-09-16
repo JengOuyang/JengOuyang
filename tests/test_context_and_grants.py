@@ -1282,3 +1282,19 @@ def test_doc_claim_test_count_is_scoped_to_the_tests_dir():
     """pytest 不限定 tests/ 就會把 legacy/ 裡的舊專案也算進來，數字因機器而異。"""
     src = (ROOT / "scripts" / "verify_docs_claims.py").read_text(encoding="utf-8")
     assert '"--collect-only", "tests"' in src
+
+
+def test_scan_legacy_skips_any_virtualenv():
+    """虛擬環境不只叫 venv（實測 venv_py311 / venv_st）；site-packages 一律不算你的程式。"""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("scan_legacy", ROOT / "scripts" / "scan_legacy.py")
+    sys.path.insert(0, str(ROOT / "scripts"))
+    m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+    P = Path
+    assert m.is_skipped(P("dev_sandbox/venv_py311/Lib/site-packages/torch/hub.py"))
+    assert m.is_skipped(P("x/.venv-old/lib/python3.12/site-packages/a.py"))
+    assert m.is_skipped(P("app/Lib/site-packages/b.py"))
+    assert m.is_skipped(P("node_modules/x/index.js"))
+    assert not m.is_skipped(P("server/config.py"))
+    assert not m.is_skipped(P("cto/m5_backtest/engine.py"))
+    assert not m.is_skipped(P("venv_notes.md")), "只看資料夾，不看檔名"

@@ -1,61 +1,36 @@
 # 11 — 既有專案可複用資產（索引）
 
-> 這份檔案由 `python scripts/scan_legacy.py --all` **自動生成**，目前是佔位版本。
-> 你有多個舊專案，所以流程是「登錄 → 盤點 → 比較 → 決定 → 逐檔派工」。
+> 由 `python scripts/scan_legacy.py --all` 生成。每個專案的細表在 `docs/legacy/<id>.md`。
 
-## 一、登錄你的舊專案（一次性）
+## 專案
 
-```powershell
-Copy-Item legacy\projects.yaml.example legacy\projects.yaml
-notepad legacy\projects.yaml
-```
+| 代號 | 名稱 | 狀態 | 信任度 | 檔案數 | 細表 |
+|---|---|---|---|---|---|
+| `BS_Crypto` | 量化交易主專案 | production | high | 3030 | [細表](legacy/BS_Crypto.md) |
+| `Crypto_Analysis_Agent` | 戰情室與行動端 | production | medium | 623 | [細表](legacy/Crypto_Analysis_Agent.md) |
 
-每個專案要填五件事，其中兩件比程式本身更重要：
+## 能力對照（同一種能力有多個候選時，CEO 只能選一個來源）
 
-| 欄位 | 為什麼要填 |
-|---|---|
-| `path` | 盤點的來源 |
-| `status` | production / prototype / abandoned |
-| `trust` | **這份程式被市場驗證的程度**。同一種能力有多個候選時，這是第一排序依據 |
-| `proven` | 已驗證的**具體事實**（例：「策略通過 2 個月 Gate A」）。CEO 派工時引用它 |
-| `known_issues` | **踩過的坑**。這是最值錢的一欄——移植時必須變成新程式的測試案例 |
+**選擇規則**：先看信任度（production/high 優先），同級再看「已驗證的事實」是否涵蓋這個能力，最後才看行數。**不要合併兩個專案的同一種能力**——那會同時繼承兩邊的假設。
 
-## 二、盤點
+| 能力 | 候選（專案：檔數／最大檔行數） | 建議來源 | 你的決定 |
+|---|---|---|---|
+| backtest-walkforward | `BS_Crypto`：72 檔／19534 行（high）；`Crypto_Analysis_Agent`：35 檔／19534 行（medium） | `BS_Crypto` | |
+| data-integrity | `BS_Crypto`：91 檔／44792 行（high）；`Crypto_Analysis_Agent`：9 檔／904 行（medium） | `BS_Crypto` | |
+| exchange-order-placement | `BS_Crypto`：14 檔／13284 行（high） | `BS_Crypto` | |
+| exchange-position-guard | `BS_Crypto`：96 檔／14702 行（high）；`Crypto_Analysis_Agent`：63 檔／2572 行（medium） | `BS_Crypto` | |
+| exchange-reconciliation | `BS_Crypto`：25 檔／13284 行（high） | `BS_Crypto` | |
+| macro-briefing | `BS_Crypto`：42 檔／9926 行（high） | `BS_Crypto` | |
+| market-data-collection | `BS_Crypto`：154 檔／13284 行（high）；`Crypto_Analysis_Agent`：47 檔／3660 行（medium） | `BS_Crypto` | |
+| pattern-analysis | `BS_Crypto`：133 檔／13284 行（high）；`Crypto_Analysis_Agent`：10 檔／3660 行（medium） | `BS_Crypto` | |
+| ratchet-management | `BS_Crypto`：26 檔／32856 行（high） | `BS_Crypto` | |
+| smc-analysis | `BS_Crypto`：836 檔／13284 行（high）；`Crypto_Analysis_Agent`：75 檔／3660 行（medium） | `BS_Crypto` | |
+| war-room-dashboard | `BS_Crypto`：32 檔／13284 行（high）；`Crypto_Analysis_Agent`：2 檔／346 行（medium） | `BS_Crypto` | |
 
-```powershell
-python scripts\scan_legacy.py --all           # 全部專案
-python scripts\scan_legacy.py --project qt    # 只重掃一個
-```
+## 給 CEO 的派工規則
 
-產出：本檔（索引 + **能力對照表**）與 `docs/legacy/<id>.md`（每個專案的細表）。
-
-## 三、你要做的決定
-
-在**能力對照表**的「你的決定」欄填來源專案代號，在各專案細表的「決定」欄填 `PORT` / `REF` / `SKIP`。
-
-**同一種能力有多個候選時只能選一個。** 不要合併兩個專案的同一種能力——那會同時繼承兩邊的假設，而你不會知道 bug 來自哪一邊。
-
-## 四、CEO 怎麼用
-
-1. 讀本索引與各細表，把 `PORT` 項目轉成 `TASK_ASSIGN`，**逐檔列出 `legacy_paths[]`**。
-2. 指定 `legacy-port` skill；FORGE **只讀被指派的檔**。
-3. 同一能力有多個候選時，在派工單註明「選了哪個來源、放棄哪些、為什麼」。
-4. **把 `known_issues` 轉成測試案例**：每個坑都要有一個對應的測試，否則新程式會再踩一次。
-5. 在建置日報標明：哪些 Phase 待辦因移植而縮短或取消。
-
-## 五、經驗移轉（程式盤點掃不到的那一半）
-
-程式可以被掃描，**判斷不行**。第一週請 CEO 用這五個問題各專案問你一次，答案寫進 `docs/legacy/<id>.md` 的「已驗證的事實」與「踩過的坑」：
-
-1. 這個專案**最讓你意外**的是什麼？（通常是文件不會寫的那件事）
-2. 有哪個決定你**後來後悔**了？如果重來會怎麼做？
-3. 哪一段程式你**不敢動**？為什麼？
-4. 上線後**真正花掉你最多時間**的是什麼？（多半不是主功能）
-5. 這個專案有沒有**已知但沒修**的問題？影響是什麼？
-
-第 5 題的答案要直接變成本專案的 `known_issues`——**繼承一個舊 bug 而不知道它存在，是移植最貴的失敗方式。**
-
-## 六、為什麼不直接讓 Agent 讀整個舊專案
-
-兩個理由：舊專案的規則、命名與假設會混進新 Agent 的 context（認知污染）；整包讀會讓 token 爆量。
-程式盤點 → 人工決定 → 逐檔指派，是唯一不會失控的路徑。
+1. 只派 **決定欄為 PORT** 的項目；`REF` 只允許讀來當參考，不得複製進 repo。
+2. 一次一個能力，`legacy_paths[]` 逐檔列出——FORGE 只能讀被指派的檔。
+3. 指定 `legacy-port` skill；驗收必須附 `verify_delivery.py` 的輸出。
+4. 同一能力有多個候選時，在 `TASK_ASSIGN` 註明「為什麼選這個來源、放棄哪些」，寫進建置日報。
+5. **移植「坑」比移植程式重要**：每個專案的「踩過的坑」必須變成新程式裡的測試案例，否則你會用新程式再踩一次。

@@ -72,12 +72,24 @@ def imports_of(path: Path, text: str) -> list[str]:
     return sorted(mods)[:12]
 
 
+def is_skipped(rel: Path) -> bool:
+    """第三方與生成物不是「你的程式」。
+
+    只比對**專案內的相對路徑**，而且虛擬環境不只叫 `venv`：實測有
+    `dev_sandbox/venv_py311/Lib/site-packages/...`——整個專案 46088 檔大多是套件原始碼，
+    29 個「疑似金鑰」全是 torch / tornado 的測試檔，能力對照表也被灌爆。
+    """
+    return any(part in SKIP_DIRS or part == "site-packages"
+               or part.lower().startswith(("venv", ".venv", "env_"))
+               for part in rel.parts[:-1])
+
+
 def scan(src: Path, pid: str) -> list[dict]:
     out = []
     for p in sorted(src.rglob("*")):
         if not p.is_file() or p.suffix.lower() not in CODE_EXT:
             continue
-        if any(part in SKIP_DIRS for part in p.parts):
+        if is_skipped(p.relative_to(src)):
             continue
         if p.stat().st_size > MAX_BYTES:
             continue

@@ -19,6 +19,10 @@
      activate，shell 解析到 `C:\Python3xx`（沒有 `yaml`）→ `heartbeat_check.py` 每次都失敗。
      子程序的 `PATH` 現在以 Router 自己那支 python 的目錄開頭。
      另：`render_chart.py` 的繪圖相依補進 `requirements.txt`、補 `td_console`。四條新測試。
+196. **`scan_legacy.py` 把虛擬環境當成你的程式。** 只跳過名稱**剛好**是 `venv` 的資料夾，
+     於是 `dev_sandbox/venv_py311/Lib/site-packages/` 整包被盤點：Crypto_Analysis_Agent 46088 檔、
+     29 個「疑似金鑰」全是 torch / tornado 的原始碼，能力對照表的候選數也被灌爆。
+     現在跳過 `site-packages` 與 `venv*` / `.venv*` / `env_*` 資料夾（只看專案內相對路徑），重掃後為 623 檔、0 個誤報。
 
 **v3.0.21**（Router 因為一份 markdown 的數字過期而開不了機）：
 189. **測試數在不同機器上會數出不同的值。** `verify_docs_claims` 用

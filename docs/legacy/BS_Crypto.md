@@ -4,7 +4,7 @@
 
 - 路徑：`C:\Users\Ouyang\Desktop\My AI Agent\BS Crypto`
 - 狀態：production　信任度：high
-- 檔案數：3002
+- 檔案數：3030
 
 ## 已驗證的事實（CEO 派工時的優先依據）
 
@@ -106,7 +106,7 @@
 
 | 檔案 | 行數 | 主要依賴 | 決定 |
 |---|---|---|---|
-| `cro/signals/pending.json` | 14432 | — | |
+| `cro/signals/pending.json` | 14702 | — | |
 | `docs/collab/archive/claude_to_deepseek_archive.md` | 13284 | @/components/providers/PnlProvider, @/components/ui/button, lightweight-charts | |
 | `docs/collab/claude_to_deepseek.md` | 7068 | — | |
 | `docs/collab/deepseek_to_claude.md` | 5290 | — | |
