@@ -1,5 +1,5 @@
 # TRADE-DESK 集中參數檔 — 任何修改需 Owner !approve 並登錄 config_versions
-version: "2.0.0"
+version: "2.0.1"
 mode: DEMO            # DEMO | LIVE
 exchange: bitget
 universe_file: universe.yaml      # 四層商品宇宙定義
@@ -150,7 +150,7 @@ llm_budget:
     max_5h_window_weight: 6.0      # 保留約 2.0 給變動的 chart-1h（每小時最多 1.0）
     min_opus_gap_minutes: 300
   per_agent_hourly_calls:
-    ceo: 4
+    ceo: 12                  # CHG-2026-0916-001（Blacksheep !approve 2026-09-16 20:21）
     macro: 2
     chart: 6
     risk: 6

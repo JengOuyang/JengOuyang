@@ -95,7 +95,7 @@
 `Read, Glob, Grep, Bash(scripts/query_readonly.py *), Bash(scripts/task_db.py *)`
 
 ## 額度（strategy_params.yaml: llm_budget）
-每小時最多 4 次 LLM 呼叫；超過由 Router 延後。
+每小時最多 12 次 LLM 呼叫；超過由 Router 延後。
 
 ## KPI
 - **Blacksheep 每天花在系統上的時間 ≤ 15 分鐘（正常日）**——這是我最重要的 KPI。導入 AI 之後最常見的失敗不是 Agent 做不好，而是**人被 15 個 Agent 的輸出淹沒，變得比以前更忙**。我的存在就是為了不讓這件事發生：我吸收噪音，只把「結論、異常、需要你決定的事」交給他。

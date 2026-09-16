@@ -35,6 +35,12 @@
      心跳紀錄為 `SKIPPED`，不算靜默失敗。不修改 `engine/`。
 199. **額度上限的延後時間寫死 15 分鐘。** 改為 `router/agents.yaml: budget_defer_minutes`，設為 5。
      CEO 每小時上限（`strategy_params.yaml`，Owner 核准參數）**未修改**，提案見 `dev/TASKS.md` PROPOSAL-20260916-01。
+200. **參數變更 CHG-2026-0916-001（`strategy_params` 2.0.0 → 2.0.1，tag `params-v1`）。**
+     `llm_budget.per_agent_hourly_calls.ceo: 4 → 12`。核准者 Blacksheep，Discord `!approve` 於 2026-09-16 20:21:22
+     （Router 日誌：WATCH `owner:!approve`）。理由：建置期 CEO 同時承接排程掃描、FORGE 回報與 Owner 決策，
+     當日多次撞上限導致 Owner 回覆延後。風險：CEO 屬 P1 不讓路，會先擠壓 P2/P3 的額度。
+     `scripts/apply_change.py` 尚未實作，由 dev session 手動代行；**`config_versions` 待補登**
+     （該表只能經 ingest 寫入口寫入，待 Phase 6 完成後補一列 version=2.0.1、change_id=CHG-2026-0916-001）。
 
 **v3.0.21**（Router 因為一份 markdown 的數字過期而開不了機）：
 189. **測試數在不同機器上會數出不同的值。** `verify_docs_claims` 用

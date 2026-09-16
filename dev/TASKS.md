@@ -20,10 +20,10 @@
 ## 臨時想法（想到就記，之後請 CEO 立項）
 -
 
-## 變更提案（待 Owner `!approve`，未套用）
+## 變更提案
 
 ### PROPOSAL-20260916-01：CEO 每小時 LLM 呼叫上限 4 → 12
-- **狀態**：待 Blacksheep 在 Discord `!approve <change_id>`（change_id 由 CEO 開立）
+- **狀態**：✅ 已核准並套用——`CHG-2026-0916-001`，Blacksheep `!approve` 2026-09-16 20:21:22；strategy_params 2.0.1、tag `params-v1`。**待辦：`config_versions` 補登（apply_change.py 上線後）**
 - **提出者**：Blacksheep（2026-09-16，dev session）
 - **變更**：`shared/strategy_params.yaml` → `llm_budget.per_agent_hourly_calls.ceo: 4 → 12`
 - **理由**：建置期 CEO 同時承接排程掃描、FORGE 回報與 Owner 決策回覆，2026-09-16 多次撞上 4 次上限，
