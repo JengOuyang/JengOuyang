@@ -5,6 +5,21 @@
 
 ## 各版變更
 
+**v3.0.22**（FORGE 的頻道累加到 51 跳，修復路徑靜默失效）：
+192. **Router 的自動 BUG_REPORT 被算成「Agent 回應 Agent」。** 它由失敗那隻 Agent 的 Bot 發到 `#forge`，
+     每次失敗都讓那個頻道 +1 跳；排程每 15 分鐘失敗一次，永遠等不到 30 分鐘的閒置重置。
+     第 6 則之後 FORGE 只回 🛑——**所有自動報修都沒有人收**，日誌裡只有一行「已達 51 跳上限」。
+     改由 TD-ROUTER 發出，並以**作者身分**（`from_router`）判定為新工作，不累加跳數。
+193. **`[CRON:x]` 原本只看內容。** 任何 Agent 的輸出以這串字開頭，就會被當成排程而把跳數歸零。
+     現在只認 TD-ROUTER 發的。
+194. **修好 192 之後，FORGE 會每 15 分鐘被同一個錯誤叫醒一次。** 新增 `bug_report_dedup_minutes`
+     （`router/agents.yaml`，預設 360）：同一個 Agent × 觸發 × 症狀在窗口內只報一次。
+     FORGE 處理自動報修時自己失敗，改到 `#alerts` 找 Blacksheep，不再報修給自己。
+195. **Router 跑腳本時叫到系統的 python。** `agents.yaml` 寫的是裸 `python`，Router 用 venv 啟動但沒有
+     activate，shell 解析到 `C:\Python3xx`（沒有 `yaml`）→ `heartbeat_check.py` 每次都失敗。
+     子程序的 `PATH` 現在以 Router 自己那支 python 的目錄開頭。
+     另：`render_chart.py` 的繪圖相依補進 `requirements.txt`、補 `td_console`。四條新測試。
+
 **v3.0.21**（Router 因為一份 markdown 的數字過期而開不了機）：
 189. **測試數在不同機器上會數出不同的值。** `verify_docs_claims` 用
      `pytest --collect-only` 數，但**沒有限定 `tests/`**——pytest 會從專案根目錄往下收，

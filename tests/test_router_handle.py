@@ -351,3 +351,90 @@ def test_burst_breaker_mutes_a_runaway_channel(R, monkeypatch):
     assert all(ok[:R.BURST_LIMIT]), "正常流量不該被擋"
     assert not any(ok[R.BURST_LIMIT:]), "超過上限之後必須閉嘴"
     assert tid in R._muted
+
+
+# ── v3.0.22：Router 自動 BUG_REPORT 被算成一跳（「FORGE 已達 51 跳上限」）──────
+
+class _SpyChannel(FakeChannel):
+    """記下 send 的內容，並讓送出的訊息看起來是 TD-ROUTER 發的。"""
+    def __init__(self, author):
+        super().__init__()
+        self.author = author
+        self.msgs: list[FakeMessage] = []
+
+    async def send(self, content=None, **kw):
+        self.sent.append(content or "")
+        m = FakeMessage(content or "", author=self.author, channel=self, guild=FakeGuild(99))
+        self.msgs.append(m)
+        return m
+
+
+def _router_bot(R, monkeypatch, ch):
+    rb = type("RB", (), {"user": FakeUser(7777, bot=True, name="TD-ROUTER"),
+                         "get_channel": lambda self, cid: ch})()
+    monkeypatch.setitem(R.bots, "router", rb)
+    R._bug_sent.clear()
+    return rb
+
+
+def _failing(R, aid, monkeypatch, err="script exit 1：No module named 'yaml'"):
+    _prepare(R, aid, monkeypatch)
+
+    async def boom(*a, **k):
+        raise RuntimeError(err)
+    monkeypatch.setattr(R, "run_claude", boom)
+    monkeypatch.setattr(R, "run_script", boom)
+
+
+def test_router_bug_reports_do_not_accumulate_hops_in_forge(R, monkeypatch):
+    """排程每次失敗都 @FORGE。這些報修是新工作，FORGE 必須每一則都收得到。
+
+    v3.0.21 以前：BUG_REPORT 由失敗的 Agent 的 Bot 發出 → 算成一跳 →
+    第 6 則之後 FORGE 只回 🛑，實測累加到 51 跳，修復路徑靜默失效。
+    """
+    forge_ch = _SpyChannel(FakeUser(7777, bot=True, name="TD-ROUTER"))
+    forge_ch.id = next(_CID)
+    _router_bot(R, monkeypatch, forge_ch)
+    _prepare(R, "forge", monkeypatch)
+    for i in range(R.CFG.get("max_hops", 6) + 4):
+        # 每次不同的錯誤，避免被去重擋掉
+        _failing(R, "watch", monkeypatch, err=f"script exit 1：錯誤 {i}")
+        asyncio.run(R.handle("watch", _msg_from_router(R), cron_job="watch-heartbeat"))
+        report = forge_ch.msgs[-1]
+        assert "BUG_REPORT" in report.content
+        _prepare(R, "forge", monkeypatch)
+        asyncio.run(R.handle("forge", report))
+        assert "🛑" not in report.reactions, f"第 {i+1} 則 BUG_REPORT 被跳數上限擋下：{report.reactions}"
+
+
+def test_same_failure_is_reported_once_within_dedup_window(R, monkeypatch):
+    """同一個排程每 15 分鐘失敗一次，不能每次都叫醒 FORGE（燒額度）。"""
+    ch = _SpyChannel(FakeUser(7777, bot=True))
+    _router_bot(R, monkeypatch, ch)
+    for _ in range(4):
+        _failing(R, "watch", monkeypatch)
+        asyncio.run(R.handle("watch", _msg_from_router(R), cron_job="watch-heartbeat"))
+    assert len([s for s in ch.sent if "BUG_REPORT" in s]) == 1, ch.sent
+
+
+def test_forge_failing_on_router_bug_report_goes_to_the_human(R, monkeypatch):
+    """FORGE 處理自動報修時自己失敗，不能再報修給自己（無限自我報修）。"""
+    ch = _SpyChannel(FakeUser(7777, bot=True))
+    _router_bot(R, monkeypatch, ch)
+    _failing(R, "forge", monkeypatch)
+    report = FakeMessage("<@9000> ❌ BUG_REPORT 自動產生", author=FakeUser(7777, bot=True),
+                         guild=FakeGuild(99))
+    asyncio.run(R.handle("forge", report))
+    assert ch.sent, "應該通知人"
+    assert "BUG_REPORT 自動產生" not in ch.sent[-1], ch.sent
+    assert f"<@{R.OWNER_ID}>" in ch.sent[-1]
+
+
+def test_only_router_messages_count_as_new_work(R, monkeypatch):
+    """Agent 的輸出寫成 `[CRON:x]` 或 BUG_REPORT 格式，不能把跳數歸零。"""
+    _router_bot(R, monkeypatch, FakeChannel())
+    spoof = FakeMessage("[CRON:x] ❌ BUG_REPORT", author=FakeUser(9001, bot=True, name="TD-CHART"))
+    assert not R.from_router(spoof)
+    assert R.from_router(FakeMessage("x", author=FakeUser(7777, bot=True)))
+    src = (ROOT / "router" / "discord_router.py").read_text(encoding="utf-8")
+    assert "if m and from_router(msg): cron = m.group(1)" in src

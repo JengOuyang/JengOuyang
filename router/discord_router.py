@@ -444,7 +444,8 @@ async def handle(aid: str, msg: discord.Message, cron_job: str | None = None, mo
         return
     # 排程訊息是由 TD-ROUTER（一個 Bot）發的，但它是**一件新工作**，不是「Agent 回應 Agent」。
     # 把它算成一跳，會讓頻道的計數器隨排程次數無止盡累加（v3.0.12 的「已達 28 跳上限」洗版）。
-    hop, a2a = chain_bump(tid, from_bot=msg.author.bot and not cron_job)
+    # Router 自動產生的 BUG_REPORT 同理（v3.0.22，見 report_failure）。
+    hop, a2a = chain_bump(tid, from_bot=msg.author.bot and not cron_job and not from_router(msg))
     if hop >= CFG.get("max_hops", 6):
         await react(msg, "🛑", remove="👀", aid=aid)
         # 只喊一次。而且**不能 @ 其他 Agent**——這條鏈已經滿了，被 @ 的 Agent 一進來
@@ -511,17 +512,65 @@ async def handle(aid: str, msg: discord.Message, cron_job: str | None = None, mo
             LOG.exception("agent %s failed", aid)
             hb(aid, cron_job or f"msg:{msg.id}", "ERROR", str(e)[:500])
             await react(msg, "❌", remove="⚙️", aid=aid)
+            await report_failure(aid, msg, cron_job, e)
+
+
+def from_router(msg) -> bool:
+    """這則訊息是不是 TD-ROUTER 本人發的。
+
+    只認**作者身分**，不認內容：LLM 的輸出由各 Agent 的 Bot 貼出，
+    寫一段 `[CRON:x]` 或 `BUG_REPORT` 文字騙不過這個判斷。
+    TD-ROUTER 不跑 LLM，它發的只有排程與自動 BUG_REPORT——都是新工作。
+    """
+    u = getattr(bots.get("router"), "user", None)
+    return bool(u) and msg.author.id == u.id
+
+
+BUG_DEDUP = CFG.get("bug_report_dedup_minutes", 360) * 60
+_bug_sent: dict[tuple, float] = {}
+
+
+async def report_failure(aid: str, msg, cron_job: str | None, e: Exception) -> None:
+    """失敗 → 自動 BUG_REPORT 給 FORGE。錯誤處理器不能有失敗路徑，所以整段吞例外。
+
+    v3.0.22 修（「FORGE 已達 51 跳上限」）：原本由**失敗那隻 Agent 的 Bot** 發出，
+    FORGE 收到時被算成「Agent 回應 Agent」→ `#forge` 每次失敗 +1 跳；
+    排程每 15 分鐘失敗一次，永遠等不到 30 分鐘的閒置重置 → 第 6 次之後
+    FORGE 再也收不到任何 BUG_REPORT，修復路徑靜默失效。現在：
+      1. 由 TD-ROUTER 發出（from_router → 新工作，不累加跳數）
+      2. 同一個 Agent × 觸發 × 症狀在 BUG_DEDUP 內只報一次（否則每 15 分鐘叫醒 FORGE 燒額度）
+      3. FORGE 處理 Router 的 BUG_REPORT 時自己失敗 → 不再報給自己，改找人
+    """
+    trigger = cron_job or "on_mention"
+    symptom = str(e)[:600]
+    try:
+        key = (aid, trigger, symptom.splitlines()[0][:200] if symptom else "")
+        now = time.time()
+        if now - _bug_sent.get(key, 0) < BUG_DEDUP:
+            LOG.warning("agent=%s 同一個錯誤 %d 分鐘內已報過 FORGE，不重複送：%s",
+                        aid, BUG_DEDUP // 60, key[2])
+            return
+        rb = bots["router"]
+        if aid == "forge" and from_router(msg):
+            ch = rb.get_channel(int(os.environ.get("CH_ALERTS") or 0))
+            if ch is None:
+                raise RuntimeError("CH_ALERTS 頻道取不到")
+            await ch.send(f"<@{OWNER_ID}> ❌ FORGE 處理自動 BUG_REPORT 時自己失敗了，"
+                          f"為避免自我報修迴圈，這筆交給人處理：{msg.jump_url}\n```\n{symptom}\n```",
+                          allowed_mentions=discord.AllowedMentions(users=True))
+        else:
             forge = mention_of("forge")
-            try:
-                ch_forge = bot.get_channel(int(os.environ.get("CH_FORGE") or 0))
-                if ch_forge is None:
-                    raise RuntimeError("CH_FORGE 頻道取不到（ID 錯誤或 Bot 不在該頻道）")
-                await ch_forge.send(
+            ch = rb.get_channel(int(os.environ.get("CH_FORGE") or 0))
+            if ch is None:
+                raise RuntimeError("CH_FORGE 頻道取不到（ID 錯誤或 Bot 不在該頻道）")
+            await ch.send(
                 f"{forge} ❌ BUG_REPORT 自動產生\n```json\n" + json.dumps({"msg_type": "BUG_REPORT", "from": "ROUTER", "to": ["FORGE"],
-                "payload": {"agent_id": aid, "symptom": str(e)[:600], "trigger": cron_job or msg.jump_url, "logs_path": "logs/router.log", "severity": "P2"}}, ensure_ascii=False, indent=1) + "\n```")
-            except Exception:
-                # 錯誤處理器不能有失敗路徑——原始錯誤已經記在上面的 LOG.exception 裡
-                LOG.error("agent=%s 失敗後連 BUG_REPORT 都送不出去（CH_FORGE 設定或權限？）", aid)
+                "payload": {"agent_id": aid, "symptom": symptom, "trigger": cron_job or msg.jump_url, "logs_path": "logs/router.log", "severity": "P2"}}, ensure_ascii=False, indent=1) + "\n```",
+                allowed_mentions=discord.AllowedMentions(users=True))
+        _bug_sent[key] = now
+    except Exception:
+        # 錯誤處理器不能有失敗路徑——原始錯誤已經記在 handle() 的 LOG.exception 裡
+        LOG.error("agent=%s 失敗後連 BUG_REPORT 都送不出去（CH_FORGE / CH_ALERTS 設定或權限？）", aid)
 
 async def worker(aid):
     """每個 Agent 一條佇列、一個 worker。
@@ -587,10 +636,11 @@ def make_bot(aid: str) -> discord.Client:
         if not mentioned and not implicit: return
         if not is_owner and not msg.author.bot and not a.get("allow_public", False): return   # 只接受 Owner 與其他 Agent
         if msg.author.bot and msg.author.id not in {b.user.id for b in bots.values() if b.user}: return  # 只接受本團隊 Bot
-        # 排程觸發格式 [CRON:job]
+        # 排程觸發格式 [CRON:job]——只認 TD-ROUTER 發的。否則任何 Agent 的輸出以 `[CRON:x]` 開頭，
+        # 就會被當成新工作而把跳數歸零，迴圈保護形同虛設。
         cron = None; model_override = None
         m = re.match(r"\[CRON:([\w\-]+)\]", msg.content)
-        if m: cron = m.group(1)
+        if m and from_router(msg): cron = m.group(1)
         mm = re.search(r"<!-- model:(\w+) -->", msg.content)
         if mm: model_override = mm.group(1)
         await queues[aid].put((msg, cron, model_override))

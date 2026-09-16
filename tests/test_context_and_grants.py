@@ -101,8 +101,8 @@ def test_hop_not_trusted_from_llm_output():
     """迴圈保護必須由 Router 記帳。若改回從訊息內容 regex 抓 hop，Agent 不寫就會重置為 0，保護等於失效。"""
     src = (ROOT / "router" / "discord_router.py").read_text(encoding="utf-8")
     assert "def chain_bump" in src and "CREATE TABLE IF NOT EXISTS chains" in src
-    assert "hop, a2a = chain_bump(tid, from_bot=msg.author.bot and not cron_job)" in src,\
-        "排程訊息由 Bot 發出，但它是新工作不是一跳——算成一跳會讓計數器隨排程無止盡累加"
+    assert "hop, a2a = chain_bump(tid, from_bot=msg.author.bot and not cron_job and not from_router(msg))" in src,\
+        "排程與 Router 的自動 BUG_REPORT 由 Bot 發出，但它們是新工作不是一跳——算成一跳會讓計數器無止盡累加"
     # handle() 內不得再用訊息內容判斷 hop 上限
     handle = src[src.index("async def handle("):src.index("async def worker(")]
     assert 'msg.content' not in handle.split("chain_bump")[0].split("await react(msg,")[-1] or True
