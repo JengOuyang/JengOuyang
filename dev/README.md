@@ -1,6 +1,6 @@
 # dev/ — 你的開發工作區
 
-**這是你（人類）開 Claude Code 的地方。** `cd C:\trade-desk\dev` 然後 `claude`。
+**這是你（人類）開 Claude Code 的地方。** `cd C:\trade_desk\dev` 然後 `claude`。
 
 為什麼在這裡而不是專案根目錄：`dev/` 不在 `agents/` 的繼承鏈上，所以你的開發指示不會被 15 個 Agent 載入，Agent 的人設也不會進入你的開發 session。詳見 `docs/04_DEV_ENVIRONMENT.md` 與 `docs/adr/ADR-004`。
 

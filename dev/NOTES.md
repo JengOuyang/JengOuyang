@@ -13,7 +13,7 @@
 | 交易執行 | LLM 只提案；`engine/risk_gate.py` 與 `engine/executor.py` 是唯一碰錢的程式 | 白皮書 §2.2 |
 
 ## 環境
-- 根目錄 `C:\trade-desk`，虛擬環境 `.venv`
+- 根目錄 `C:\trade_desk`，虛擬環境 `.venv`
 - Python 3.12、Node LTS（Claude Code 需要）、Git
 - `router/.env` 存所有金鑰（NTFS 權限只給自己，不進 git）
 - Router 由 Windows 工作排程器登入時啟動，`watchdog.ps1` 每 5 分鐘檢查

@@ -60,7 +60,7 @@
 
 ### 在 PowerShell
 ```powershell
-cd C:\trade-desk; .\.venv\Scripts\Activate.ps1
+cd C:\trade_desk; .\.venv\Scripts\Activate.ps1
 
 python scripts\build_context.py            # 改完 shared/ 必跑
 python scripts\build_context.py --verify   # 驗證一致性

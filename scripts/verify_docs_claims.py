@@ -66,7 +66,10 @@ def facts() -> dict:
         # 測試數也會漂（13_GITHUB 曾停在 69 而實際 80）
         # 用 pytest 自己數（有 parametrize，數 def test_ 會少算）
         "tests": int(re.search(r"(\d+) tests? collected", subprocess.run(
-            [sys.executable, "-m", "pytest", "-q", "--collect-only"], cwd=ROOT,
+            # 一定要限定 tests/：不限定的話 pytest 會從專案根目錄往下收，
+            # 把 legacy/ 裡的舊專案、或任何使用者自己放的測試也算進去，
+            # 於是同一份程式在不同機器上數出不同的數字（實測：這裡 130、Blacksheep 那台 140）。
+            [sys.executable, "-m", "pytest", "-q", "--collect-only", "tests"], cwd=ROOT,
             capture_output=True, text=True, encoding="utf-8", errors="replace",
             env=child_env()).stdout or "0 tests collected").group(1)),
         "channels": len(re.findall(r"^\| [^|]*\| #", setup, re.M)) or len(set(re.findall(r"CH_[A-Z_]+", setup))),

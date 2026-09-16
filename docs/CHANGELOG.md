@@ -5,6 +5,35 @@
 
 ## 各版變更
 
+**v3.0.21**（Router 因為一份 markdown 的數字過期而開不了機）：
+189. **測試數在不同機器上會數出不同的值。** `verify_docs_claims` 用
+     `pytest --collect-only` 數，但**沒有限定 `tests/`**——pytest 會從專案根目錄往下收，
+     把 `legacy/` 裡的舊專案、或任何使用者自己放的測試也算進去。
+     實測：同一份程式在這裡數出 130、在 Blacksheep 的機器上數出 140。改成收 `tests/`。
+190. **文件數字過期不該讓交易系統開不了機。** preflight 原本直接跑 `lint_agents.py`，
+     而 lint 第 15 項（文件宣稱與實際一致）一不過就 `SystemExit`。
+     於是「markdown 裡寫 130、實際 140」這種事**擋住了整個 Router 啟動**。
+     文件漂移要擋的地方是 commit 與 CI，不是開機。新增 `--startup` 模式：
+     **只有當所有問題都是文件漂移時**降為警告；真正的定義問題（例如根目錄出現
+     `CLAUDE.md`）在啟動模式一樣擋。preflight 改用這個模式。
+191. 修 `--startup` 實作時自己踩到的 `UnboundLocalError`：在函式裡對模組層級的
+     `problems` 指派，會讓整個函式的 `problems` 變成區域變數，前面所有 append 全部爆炸。
+     改成 `problems.clear()` / `warnings.extend()` 就地修改。測試 130 → **133 項**。
+
+**v3.0.20**（`No module named 'discord'`：不是沒裝，是沒啟動 venv）：
+186. **相依套件的 traceback 沒告訴人真正的原因。** 「沒裝套件」與
+     「跑的是系統 python 而不是 venv 那支」的 traceback 一模一樣，處置卻完全不同。
+     Router 現在自己接住 `ModuleNotFoundError`，印出**現在用的是哪支 python**、
+     在不在 venv 裡，並依情況給出啟動 venv 或安裝套件的指令。
+     （`td_console` 的匯入被移到守衛之前，否則這段中文在 cp950 主控台自己會炸。）
+187. **`start.ps1` / `watchdog.ps1` 把路徑寫死成 `C:\trade-desk`（連字號），
+     而實際資料夾是 `C:\trade_desk`（底線）——一個字元就整支跑不起來。**
+     兩支都改成用 `$PSScriptRoot` 自推專案根目錄，`start.ps1` 另外直接用
+     `.venv\Scripts\python.exe`，不依賴 venv 有沒有啟動。
+188. 全部文件裡的 `C:\trade-desk` 一律改成 `C:\trade_desk`，與實際安裝位置一致。
+     三條新測試：PowerShell 腳本不得寫死路徑；Router 必須有可行動的相依錯誤訊息。
+     測試 128 → **130 項**。
+
 **v3.0.19**（Router 在跑的時候開發：守衛會還原你的修改）：
 184. **這是一個會靜默吃掉工作的互動。** Router 每呼叫一次 Agent，事後都會跑
      `guard_paths.py verify --agent <id> --restore`：比對受保護檔案的雜湊，

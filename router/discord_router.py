@@ -15,15 +15,33 @@ import asyncio, json, os, re, sqlite3, subprocess, sys, time, uuid, shlex, loggi
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
-import discord, yaml
-from dotenv import load_dotenv
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from apscheduler.triggers.cron import CronTrigger
-
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 from td_proc import run as run_proc   # noqa: E402  UTF-8 安全的子程序呼叫
-import td_console  # noqa: E402,F401
+import td_console  # noqa: E402,F401   （先設好主控台編碼，下面的錯誤訊息才印得出中文）
+
+# 相依套件的匯入要給人看得懂的訊息。最常見的原因不是「沒裝」，
+# 是**跑的是系統的 python 而不是 venv 裡那支**——兩者的 traceback 一模一樣，
+# 但處置完全不同。所以這裡把「現在正在用哪支 python」印出來。
+try:                                   # noqa: E402
+    import discord, yaml
+    from dotenv import load_dotenv
+    from apscheduler.schedulers.asyncio import AsyncIOScheduler
+    from apscheduler.triggers.cron import CronTrigger
+except ModuleNotFoundError as e:
+    venv_py = ROOT / ".venv" / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+    using_venv = str(ROOT / ".venv") in sys.prefix
+    msg = [f"找不到套件 `{e.name}`。",
+           f"現在用的 python：{sys.executable}",
+           f"（{'在 venv 裡' if using_venv else '**不在 venv 裡**'}）", ""]
+    if venv_py.exists() and not using_venv:
+        msg += ["venv 存在但沒有啟動——這是最常見的原因。兩種做法擇一：", "",
+                "  .\\.venv\\Scripts\\Activate.ps1", "  python router\\discord_router.py", "",
+                "或者不啟動、直接指定：", "",
+                f"  {venv_py} router\\discord_router.py"]
+    else:
+        msg += ["安裝相依套件：", "", "  python -m pip install -r requirements.txt"]
+    raise SystemExit("\n".join(msg))
 load_dotenv(ROOT / "router" / ".env")
 CFG = yaml.safe_load(open(ROOT / "router" / "agents.yaml", encoding="utf-8"))
 SCHED = yaml.safe_load(open(ROOT / "router" / "scheduler.yaml", encoding="utf-8"))
@@ -639,11 +657,12 @@ async def check_discord_permissions() -> None:
 def preflight() -> None:
     """啟動前檢查：上下文切片與 shared/ 一致、Agent 定義自洽。不通過就不啟動。"""
     import subprocess
-    for script, label in ((("scripts", "build_context.py"), "上下文完整性"),
-                          (("scripts", "lint_agents.py"), "Agent 定義"),
-                          (("scripts", "verify_isolation.py"), "職責與權限隔離")):
-        r = run_proc([sys.executable, str(ROOT.joinpath(*script))]
-                     + (["--verify"] if "build" in script[1] else []), cwd=ROOT)
+    # lint 用 --startup：文件裡的數字過期不該讓交易系統開不了機
+    # （那是 commit 與 CI 該擋的事）。真正的定義不一致仍然會擋。
+    for script, label, args in ((("scripts", "build_context.py"), "上下文完整性", ["--verify"]),
+                                (("scripts", "lint_agents.py"), "Agent 定義", ["--startup"]),
+                                (("scripts", "verify_isolation.py"), "職責與權限隔離", [])):
+        r = run_proc([sys.executable, str(ROOT.joinpath(*script))] + args, cwd=ROOT)
         if r.returncode != 0:
             # stdout 可能是空的（子程序自己崩潰時訊息只在 stderr）——兩邊都端出來
             detail = (r.stdout or "").strip() or (r.stderr or "").strip() or "（沒有任何輸出）"

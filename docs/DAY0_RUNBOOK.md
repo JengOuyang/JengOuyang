@@ -154,7 +154,7 @@ python scripts\doctor.py
 
 ### 先決定放在哪裡——這一步選錯，之後會反覆咬你
 
-把 `trade-desk.zip` 解壓到 **`C:\trade-desk`**。三個硬性要求：
+把 `trade-desk.zip` 解壓到 **`C:\trade_desk`**。三個硬性要求：
 
 | 要求 | 為什麼 |
 |---|---|
@@ -168,7 +168,7 @@ python scripts\doctor.py
 ### 建立虛擬環境
 
 ```powershell
-cd C:\trade-desk
+cd C:\trade_desk
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
@@ -188,7 +188,7 @@ python -m pip install -r requirements.txt
 |---|---|---|
 | `無法載入檔案 ... 執行原則` | PowerShell 擋住 `Activate.ps1` | `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` 後重來 |
 | `Fatal error in launcher: Unable to create process using ...` | **`.venv` 被搬過家**（venv 不可搬移） | 刪掉重建，見下面那一塊 |
-| `找不到檔案 requirements.txt` | 跑錯目錄，或以為它在 `router\` | 它在**專案根目錄**；先 `cd C:\trade-desk` |
+| `找不到檔案 requirements.txt` | 跑錯目錄，或以為它在 `router\` | 它在**專案根目錄**；先 `cd C:\trade_desk` |
 
 **`.venv` 搬過家的修法**（整塊複製，安全，不會動到你的程式碼）：
 
@@ -370,7 +370,7 @@ alerts
 ## 步驟 7｜填設定檔 【PowerShell】+【記事本】
 
 ```powershell
-cd C:\trade-desk
+cd C:\trade_desk
 Copy-Item router\.env.example router\.env
 notepad router\.env
 ```
@@ -431,7 +431,7 @@ python scripts\doctor.py
 
 
 ```powershell
-cd C:\trade-desk
+cd C:\trade_desk
 .\.venv\Scripts\Activate.ps1
 python router\discord_router.py
 ```
@@ -490,7 +490,7 @@ python router\discord_router.py
 14 隻都建完後，回到【PowerShell】還原完整設定並重啟：
 
 ```powershell
-cd C:\trade-desk
+cd C:\trade_desk
 Copy-Item router\agents.yaml.full router\agents.yaml -Force
 python scripts\lint_agents.py
 python router\discord_router.py

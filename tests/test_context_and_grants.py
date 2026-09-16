@@ -1225,3 +1225,60 @@ def test_snapshot_also_refreshes_the_guard_baseline():
     cmd = (ROOT / "dev" / "snapshot.cmd").read_text(encoding="ascii")
     assert "guard_paths.py snapshot" in cmd
     assert ".venv\\Scripts\\python.exe" in cmd, "鉤子與批次檔都不能假設 venv 已啟動"
+
+
+def test_powershell_scripts_do_not_hardcode_the_project_path():
+    """資料夾叫 trade-desk 還是 trade_desk 由使用者決定——腳本要自己推，不能寫死。"""
+    for name in ("start.ps1", "watchdog.ps1"):
+        t = (ROOT / "router" / name).read_bytes().decode("utf-8-sig")
+        assert "$PSScriptRoot" in t, f"{name} 應該用 $PSScriptRoot 推出專案根目錄"
+        assert 'C:\\trade' not in t.split("#")[0] or "$root = Split-Path" in t, f"{name} 仍寫死了路徑"
+
+
+def test_router_gives_an_actionable_message_when_deps_are_missing():
+    """`ModuleNotFoundError: No module named 'discord'` 幾乎都是「沒啟動 venv」，不是沒裝。"""
+    src = (ROOT / "router" / "discord_router.py").read_text(encoding="utf-8")
+    assert "except ModuleNotFoundError" in src
+    assert "sys.executable" in src and "venv" in src
+    i_guard = src.index("except ModuleNotFoundError")
+    assert src.index("import td_console") < i_guard, "要先設好主控台編碼，錯誤訊息才印得出中文"
+
+
+# ── 啟動不該被「文件裡的數字過期」擋住（v3.0.21）────────────────────────
+
+def test_lint_startup_mode_downgrades_doc_drift_but_not_real_problems(tmp_path):
+    """`--startup`：文件數字過期 → 警告；Agent 定義真的壞掉 → 仍然失敗。"""
+    work = tmp_path / "proj"
+    shutil.copytree(ROOT, work, ignore=shutil.ignore_patterns(
+        "__pycache__", ".pytest_cache", ".git", ".venv", "data", "logs"))
+    subprocess.run([sys.executable, str(work / "scripts" / "build_context.py")],
+                   capture_output=True, cwd=work)
+    env = {**os.environ, "PYTHONIOENCODING": "utf-8"}
+
+    def lint(*args):
+        return subprocess.run([sys.executable, str(work / "scripts" / "lint_agents.py"), *args],
+                              capture_output=True, text=True, encoding="utf-8",
+                              errors="replace", cwd=work, env=env)
+
+    gh = work / "docs" / "13_GITHUB.md"
+    gh.write_text(re.sub(r"pytest（\d+ 項）", "pytest（999 項）", gh.read_text(encoding="utf-8")),
+                  encoding="utf-8")
+    assert lint().returncode == 1, "一般模式：文件漂移仍要擋（commit 與 CI 用）"
+    r = lint("--startup")
+    assert r.returncode == 0, f"啟動模式不該被文件數字擋住：{r.stdout[-600:]}"
+    assert "啟動模式" in r.stdout
+
+    # 真正的問題不可以被降級
+    (work / "CLAUDE.md").write_text("污染", encoding="utf-8")     # lint 第 11 項
+    assert lint("--startup").returncode == 1, "真正的定義問題在啟動模式也必須擋"
+
+
+def test_router_preflight_uses_startup_mode():
+    src = (ROOT / "router" / "discord_router.py").read_text(encoding="utf-8")
+    assert '"Agent 定義", ["--startup"]' in src
+
+
+def test_doc_claim_test_count_is_scoped_to_the_tests_dir():
+    """pytest 不限定 tests/ 就會把 legacy/ 裡的舊專案也算進來，數字因機器而異。"""
+    src = (ROOT / "scripts" / "verify_docs_claims.py").read_text(encoding="utf-8")
+    assert '"--collect-only", "tests"' in src

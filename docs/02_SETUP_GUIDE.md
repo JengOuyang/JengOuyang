@@ -12,7 +12,7 @@
 0. 你要蓋的東西（心智模型）
 1. Windows 基礎環境
 2. Claude Code 安裝、登入、模型確認
-3. 部署檔案包到 `C:\trade-desk`
+3. 部署檔案包到 `C:\trade_desk`
 4. Discord 伺服器與 18 個頻道
 5. 建立 16 隻 Discord Bot（逐步，含每隻的設定）
 6. 把每隻 Bot 連結到對應的 Agent（`router/.env`、`agents.yaml`）
@@ -57,7 +57,7 @@
 ```powershell
 PS> irm https://claude.ai/install.ps1 | iex      # 若已安裝可跳過；更新用 claude update
 PS> claude --version
-PS> mkdir C:\trade-desk-test; cd C:\trade-desk-test
+PS> mkdir C:\trade_desk-test; cd C:\trade_desk-test
 PS> claude
 claude> /login                                     # 用你的 Claude Pro 帳號（瀏覽器 OAuth）
 claude> /model                                     # 記下可用模型別名：sonnet / opus / haiku（Pro 可用者為準）
@@ -73,10 +73,10 @@ PS> claude -p "回覆 OK 兩個字" --output-format json --model sonnet
 
 ## 3. 部署檔案包
 
-1. 解壓 `trade-desk-v2.zip` 到 `C:\trade-desk`（路徑固定，`watchdog.ps1`、`start.ps1` 都用這個路徑；要改請一併改）。
+1. 解壓 `trade-desk-v2.zip` 到 `C:\trade_desk`（路徑固定，`watchdog.ps1`、`start.ps1` 都用這個路徑；要改請一併改）。
 2. 建立虛擬環境並安裝套件：
 ```powershell
-PS> cd C:\trade-desk
+PS> cd C:\trade_desk
 PS> python -m venv .venv
 PS> .\.venv\Scripts\Activate.ps1
 PS> pip install -r router\requirements.txt
@@ -85,7 +85,7 @@ PS> mkdir logs, data, marketing\queue, marketing\longform, marketing\analytics, 
 3. 安裝 Skills 到使用者層（跨專案可用）**[確認：Claude Code 讀 `~/.claude/skills/`]**：
 ```powershell
 PS> mkdir $HOME\.claude\skills -Force
-PS> Copy-Item -Recurse -Force C:\trade-desk\skills\* $HOME\.claude\skills\
+PS> Copy-Item -Recurse -Force C:\trade_desk\skills\* $HOME\.claude\skills\
 ```
 4. 初始化 git（FORGE/LAB 需要）：
 ```powershell
@@ -93,7 +93,7 @@ PS> git init; git add .; git commit -m "trade-desk v2 bootstrap"
 ```
 5. `router\.env.example` 複製為 `router\.env`，之後逐步填入；設定檔案權限只給你：
 ```powershell
-PS> icacls C:\trade-desk\router\.env /inheritance:r /grant:r "$env:USERNAME:(R,W)"
+PS> icacls C:\trade_desk\router\.env /inheritance:r /grant:r "$env:USERNAME:(R,W)"
 ```
 
 ---
@@ -240,7 +240,7 @@ agents:
 
 **驗證單一 Agent 是否正常**（不經 Discord）：
 ```powershell
-PS> cd C:\trade-desk\agents\ceo
+PS> cd C:\trade_desk\agents\ceo
 PS> claude -p "請用 PROTOCOL 格式回覆一則 TASK_ACK，task_id T-TEST-001" --output-format json --model sonnet
 ```
 看 `result` 是否為「一行摘要 + JSON code block」。15 個 Agent 各測一次（程式型的 feed/ledger/exec 也可測，它們的 CLAUDE.md 會讓 LLM 回答狀態說明）。
@@ -250,7 +250,7 @@ PS> claude -p "請用 PROTOCOL 格式回覆一則 TASK_ACK，task_id T-TEST-001"
 ## 8. 第一次啟動 Router 與煙霧測試
 
 ```powershell
-PS> cd C:\trade-desk\router
+PS> cd C:\trade_desk\router
 PS> ..\.venv\Scripts\Activate.ps1
 PS> python discord_router.py
 ```
@@ -275,9 +275,9 @@ Router 會先跑 **preflight**（驗證 15 個 `.context/` 與 `shared/` 一致�
 1. **登入時啟動 Router**：`工作排程器 → 建立工作`：
    - 一般：名稱 `TradeDesk Router`；「只在使用者登入時執行」；勾「以最高權限執行」不需要。
    - 觸發程序：登入時。
-   - 動作：程式 `C:\trade-desk\.venv\Scripts\python.exe`，引數 `C:\trade-desk\router\discord_router.py`，起始於 `C:\trade-desk\router`。
+   - 動作：程式 `C:\trade_desk\.venv\Scripts\python.exe`，引數 `C:\trade_desk\router\discord_router.py`，起始於 `C:\trade_desk\router`。
    - 設定：勾「如果工作失敗，重新啟動間隔 1 分鐘，最多 999 次」；取消「如果工作執行超過 3 天就停止」。
-2. **Watchdog**：再建一個工作 `TradeDesk Watchdog`，觸發「每 5 分鐘（無限期）」，動作 `powershell.exe -ExecutionPolicy Bypass -File C:\trade-desk\router\watchdog.ps1`。
+2. **Watchdog**：再建一個工作 `TradeDesk Watchdog`，觸發「每 5 分鐘（無限期）」，動作 `powershell.exe -ExecutionPolicy Bypass -File C:\trade_desk\router\watchdog.ps1`。
 3. **自動登入**：Router 需要使用者工作階段（Claude Code 的 OAuth token 在你的使用者設定檔）。若電腦重開機後無人登入，Router 不會啟動。可用 `netplwiz` 設定自動登入（了解安全風險後再做），或改成「不論使用者登入與否都執行」並確認 `claude` 在該情境下能讀到登入狀態（需實測 **[估計]**）。
 4. **Claude 登入到期**：Claude Code 的 OAuth 偶爾需要重新登入。WATCH 的 `usage.py --check` 會偵測 `claude -p` 回傳認證錯誤並在 `#alerts` @你；此時開 PowerShell 跑 `claude` → `/login` 即可。
 
@@ -333,7 +333,7 @@ Bitget 準備 **[確認／建議]**：
 1. 在 Claude Code 互動視窗把 Canva 加為 MCP（使用者層，之後 `claude -p` 也能用）：
 ```powershell
 PS> claude mcp add --transport http --scope user canva https://mcp.canva.com/mcp
-PS> cd C:\trade-desk\agents\creative; claude
+PS> cd C:\trade_desk\agents\creative; claude
 claude> /mcp            # 選 canva → Authenticate → 瀏覽器登入 Canva 授權
 claude> 用 canva 列出我的品牌模板
 claude> /exit

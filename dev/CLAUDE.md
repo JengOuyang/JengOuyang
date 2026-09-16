@@ -104,7 +104,7 @@ Router 每呼叫一次 Agent，事後都會跑
 
 ## 常用指令
 ```powershell
-cd C:\trade-desk
+cd C:\trade_desk
 .\.venv\Scripts\Activate.ps1
 
 python scripts\build_context.py            # 重建 Agent 上下文切片
@@ -117,7 +117,7 @@ sqlite3 data\tradedesk.db < db\002_views.sql   # 重建視圖
 
 ## 測試單一 Agent（不經 Discord）
 ```powershell
-cd C:\trade-desk\agents\chart
+cd C:\trade_desk\agents\chart
 claude -p "請用 PROTOCOL 格式回覆一則 NO_SETUP" --output-format json --model sonnet
 ```
 

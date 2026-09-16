@@ -44,8 +44,8 @@ PS> claude                                    # /login 用 Claude Pro 帳號，�
 PS> claude -p "回覆 OK" --output-format json --model sonnet   # 確認非互動模式可用
 
 # ── 步驟 2：部署專案 ────────────────────────────────────
-PS> # 解壓 trade-desk.zip 到 C:\trade-desk
-PS> cd C:\trade-desk
+PS> # 解壓 trade-desk.zip 到 C:\trade_desk
+PS> cd C:\trade_desk
 PS> python -m venv .venv; .\.venv\Scripts\Activate.ps1
 PS> python -m pip install -r requirements.txt
 PS> python scripts\build_context.py          # 生成 15 個 Agent 的規則切片

@@ -531,6 +531,18 @@ def main() -> int:
     if (ROOT / "CLAUDE.md").exists():
         problems.append("[11] 根目錄有 CLAUDE.md——會同時污染開發 session 與 15 個 Agent（見 ADR-004）")
 
+    # Router 啟動時不該因為「markdown 裡的數字過期」而拒絕上線。
+    # 文件漂移要擋的地方是 commit 與 CI，不是交易系統的開機。
+    if "--startup" in sys.argv:
+        docs_only = [p for p in problems if p.startswith("[15]") or p.lstrip().startswith("docs")]
+        if docs_only and len(docs_only) == len(problems):
+            # 就地改，不要重新綁定——problems / warnings 是模組層級的變數，
+            # 在函式裡指派會讓整個函式的 problems 變成區域變數，前面的 append 全部 UnboundLocalError
+            warnings.extend(p.replace("ERROR", "warn ")      # 降級了就不要再印 ERROR，會嚇人
+                            + "（啟動模式：降為警告，請在 dev/ 跑 verify_docs_claims.py --fix）"
+                            for p in problems)
+            problems.clear()
+
     print(f"lint: {len(dir_agents)} 個 Agent、{len(skills)} 個 skill、{len(sched['jobs'])} 個排程")
     for w in warnings:
         print("  warn ", w)
