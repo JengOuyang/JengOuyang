@@ -23,6 +23,11 @@
      於是 `dev_sandbox/venv_py311/Lib/site-packages/` 整包被盤點：Crypto_Analysis_Agent 46088 檔、
      29 個「疑似金鑰」全是 torch / tornado 的原始碼，能力對照表的候選數也被灌爆。
      現在跳過 `site-packages` 與 `venv*` / `.venv*` / `env_*` 資料夾（只看專案內相對路徑），重掃後為 623 檔、0 個誤報。
+197. **@ 到 Bot 的同名身分組，訊息被靜默丟掉。** Discord 替每隻 Bot 建一個同名的受管身分組，
+     打 `@TD-CEO` 很容易選到它（內容是 `<@&id>`）。v3.0.13 之後 Router 只認內容裡的 `<@id>`，
+     於是 Blacksheep 的 `!status` 與決策回覆**沒有 👀、日誌也沒有任何紀錄**，一天內發生兩次。
+     現在也接受**這隻 Bot 自己的**受管身分組（`guild.self_role`），仍必須寫在內容裡；
+     其他身分組（含別的 Agent 的）一律不算。三條新測試。
 
 **v3.0.21**（Router 因為一份 markdown 的數字過期而開不了機）：
 189. **測試數在不同機器上會數出不同的值。** `verify_docs_claims` 用

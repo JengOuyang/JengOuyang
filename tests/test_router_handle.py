@@ -438,3 +438,45 @@ def test_only_router_messages_count_as_new_work(R, monkeypatch):
     assert R.from_router(FakeMessage("x", author=FakeUser(7777, bot=True)))
     src = (ROOT / "router" / "discord_router.py").read_text(encoding="utf-8")
     assert "if m and from_router(msg): cron = m.group(1)" in src
+
+
+# ── v3.0.22：@ 到 Bot 的同名身分組被靜默丟掉 ─────────────────────────────
+
+class _Role:
+    def __init__(self, rid):
+        self.id = rid
+
+
+def _on_message_of(R, aid, monkeypatch, uid=5550):
+    """建一個真的 discord.Client（不連線），取出 Router 掛上去的 on_message。"""
+    bot = R.make_bot(aid)
+    bot._connection.user = FakeUser(uid, bot=True, name=aid)
+    monkeypatch.setitem(R.queues, aid, asyncio.Queue())
+    return bot.on_message
+
+
+def _owner_msg(content, own_role_id):
+    g = FakeGuild(99)
+    g.self_role = _Role(own_role_id)
+    return FakeMessage(content, author=FakeUser(42), guild=g)   # 42 = 測試環境的 OWNER_USER_ID
+
+
+def test_owner_mentioning_the_bots_own_role_is_routed(R, monkeypatch):
+    """選到 @TD-CEO 身分組（<@&id>）也要送進 CEO 的佇列——實測發生兩次「完全沒反應」。"""
+    on_message = _on_message_of(R, "ceo", monkeypatch)
+    asyncio.run(on_message(_owner_msg("<@&8001> DEC-20260916-002：已完成", own_role_id=8001)))
+    assert R.queues["ceo"].qsize() == 1
+
+
+def test_other_roles_do_not_trigger_the_bot(R, monkeypatch):
+    """只認這隻 Bot 自己的受管身分組——別的身分組（含其他 Agent 的）不算叫到它。"""
+    on_message = _on_message_of(R, "ceo", monkeypatch)
+    asyncio.run(on_message(_owner_msg("<@&8002> 這是給別人的", own_role_id=8001)))
+    asyncio.run(on_message(_owner_msg("沒有任何 @", own_role_id=8001)))
+    assert R.queues["ceo"].qsize() == 0
+
+
+def test_user_mention_still_works(R, monkeypatch):
+    on_message = _on_message_of(R, "ceo", monkeypatch, uid=5551)
+    asyncio.run(on_message(_owner_msg("<@5551> !status", own_role_id=8001)))
+    assert R.queues["ceo"].qsize() == 1

@@ -623,6 +623,11 @@ def make_bot(aid: str) -> discord.Client:
         # msg.mentions，所以只看 mentions 會讓「某個 Bot 回覆了我」＝「我被叫到」，
         # 兩隻 Bot 互相回覆就能無限互相觸發（v3.0.13 實測 9719 跳）。
         mentioned = bool(bot.user and re.search(rf"<@!?{bot.user.id}>", msg.content))
+        # v3.0.22：Discord 會替每隻 Bot 建一個同名身分組，打 @TD-CEO 很容易選到它（`<@&id>`），
+        # 過去這種訊息被靜默丟掉。只認**這隻 Bot 自己的**受管身分組，一樣必須寫在內容裡。
+        if not mentioned and msg.guild is not None:
+            own_role = getattr(msg.guild, "self_role", None)
+            mentioned = bool(own_role and re.search(rf"<@&{own_role.id}>", msg.content))
         # Owner 指令由對應 Agent 處理（!flatten → exec、!publish → creative/publisher…），見 agents.yaml owner_commands
         cmd = msg.content.split()[0].lower() if msg.content.startswith("!") else None
         if cmd and is_owner and cmd in a.get("owner_commands", []):
