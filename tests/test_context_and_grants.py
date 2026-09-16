@@ -1218,3 +1218,10 @@ def test_snapshot_does_not_report_success_or_nothing_when_the_commit_failed():
     assert "if errorlevel 1" in cmd and "Commit failed" in cmd
     assert "Author identity unknown" in cmd, "最常見的失敗原因要直接給出解法"
     assert "git rev-parse --git-dir" in cmd, "還不是版本庫時要說清楚，而不是讓 git 自己報錯"
+
+
+def test_snapshot_also_refreshes_the_guard_baseline():
+    """Router 在跑的時候，只 commit 還不夠——守衛基準沒更新就會每次呼叫都誤報越權。"""
+    cmd = (ROOT / "dev" / "snapshot.cmd").read_text(encoding="ascii")
+    assert "guard_paths.py snapshot" in cmd
+    assert ".venv\\Scripts\\python.exe" in cmd, "鉤子與批次檔都不能假設 venv 已啟動"

@@ -37,6 +37,34 @@ Claude Code 的檔案存取以「啟動目錄」為界，從 `dev\` 啟動的 se
 有這個 commit，任何一次改壞都是 `git diff` 與 `git checkout` 的事，不是靠記性回推。
 **大一點的改動請先開分支**：`git switch -c fix/<簡述>`，`/td-check` 全過再併回 `main`。
 
+## Router 正在跑的時候動手（重要）
+
+可以同時開，但要知道兩件事會咬人：
+
+**一、你的未 commit 修改會被 Agent 的守衛還原。**
+Router 每呼叫一次 Agent，事後都會跑
+`guard_paths.py verify --agent <id> --restore`——它比對受保護檔案的雜湊，
+發現「不屬於這個 Agent 權限範圍」的變更就 `git checkout -- <檔案>` 還原。
+**你在 `scripts/`、`router/`、`shared/`、`tests/` 的編輯，看起來跟 Agent 的越權寫入一模一樣。**
+`git checkout -- <檔案>` 是從 **index** 還原的，所以：
+**只要 `git add` 過（`snapshot.cmd` 就會做），還原就是空操作，你的修改不會消失。**
+沒存檔就去泡咖啡，回來東西不見了——就是這個機制。
+`snapshot.cmd` 同時會重建守衛基準，否則每一次 Agent 呼叫都會誤報一次越權。
+
+**二、設定檔要重啟 Router 才生效。**
+
+| 改了什麼 | 生效方式 |
+|---|---|
+| `router/agents.yaml`、`router/scheduler.yaml`、`router/.env` | **必須重啟 Router** |
+| `router/discord_router.py` | **必須重啟 Router** |
+| `shared/` 的任何檔案 | 跑 `build_context.py`，**否則 Agent 會因雜湊不符停工** |
+| `agents/*/MANUAL.md`、`PERSONA.md` | 下一次呼叫就生效（Agent 每次都重讀） |
+| `scripts/`、`engine/` | 下一次呼叫就生效（都是子程序） |
+
+**三、額度是共用的。** Router 的 45 個排程 + 15 個 Agent 跟你的開發 session
+吃同一份 Claude Pro 額度。`@TD-WATCH !budget` 可以看用量；
+開發 session 很吃重的時候，先在 Discord 下 `!pause`。
+
 ## 結束 session 之前
 
 打 `/td-check`，它會跑完整的驗證鏈。**任一項不過就不算做完。**

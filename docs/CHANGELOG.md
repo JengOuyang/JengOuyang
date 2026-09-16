@@ -5,6 +5,17 @@
 
 ## 各版變更
 
+**v3.0.19**（Router 在跑的時候開發：守衛會還原你的修改）：
+184. **這是一個會靜默吃掉工作的互動。** Router 每呼叫一次 Agent，事後都會跑
+     `guard_paths.py verify --agent <id> --restore`：比對受保護檔案的雜湊，
+     發現不屬於該 Agent 權限範圍的變更就 `git checkout -- <檔案>`。
+     **開發 session 在 `scripts/`、`router/`、`shared/`、`tests/` 的編輯，
+     在守衛眼中跟 Agent 的越權寫入完全一樣。**
+     幸好 `git checkout -- <檔案>` 是從 **index** 還原的——`git add` 過就等於空操作。
+     `dev/snapshot.cmd` 現在除了 commit，也會重建守衛基準（否則每次呼叫都誤報一次越權）。
+185. `dev/CLAUDE.md` 新增「Router 正在跑的時候動手」一節：哪些改動需要重啟 Router、
+     哪些下一次呼叫就生效、以及額度是共用的。測試 127 → **128 項**。
+
 **v3.0.18**（存檔失敗卻說「沒東西可存」）：
 183. **`snapshot.cmd` 用 `git commit && echo Saved || echo Nothing to save` 判斷結果。**
      git 因為沒設 `user.email` 而失敗時，使用者看到的是 **Nothing to save**——
