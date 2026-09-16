@@ -1,0 +1,209 @@
+{
+ "ceo": {
+  "name": "CEO",
+  "cn": "總指揮",
+  "dept": "指揮",
+  "kind": "LLM",
+  "model": "opus",
+  "hourly_calls": 4,
+  "skills": [
+   "discord-protocol",
+   "task-management",
+   "data-readonly",
+   "performance-metrics"
+  ]
+ },
+ "macro": {
+  "name": "MACRO",
+  "cn": "總經／財經分析師",
+  "dept": "交易",
+  "kind": "LLM + web",
+  "model": "sonnet",
+  "hourly_calls": 2,
+  "skills": [
+   "macro-briefing",
+   "event-calendar",
+   "discord-protocol",
+   "data-readonly"
+  ]
+ },
+ "feed": {
+  "name": "FEED",
+  "cn": "行情與指標採集員",
+  "dept": "交易",
+  "kind": "程式（無 LLM）",
+  "model": "—（摘要用 haiku，可關閉）",
+  "hourly_calls": 1,
+  "skills": [
+   "market-data-collection",
+   "data-integrity"
+  ]
+ },
+ "ledger": {
+  "name": "LEDGER",
+  "cn": "資料帳本管家",
+  "dept": "交易",
+  "kind": "程式（無 LLM）",
+  "model": "—（完整性報告用 haiku）",
+  "hourly_calls": 1,
+  "skills": [
+   "data-integrity",
+   "data-readonly"
+  ]
+ },
+ "chart": {
+  "name": "CHART",
+  "cn": "技術／SMC 分析師",
+  "dept": "交易",
+  "kind": "LLM",
+  "model": "sonnet",
+  "hourly_calls": 6,
+  "skills": [
+   "smc-analysis",
+   "multi-timeframe-structure",
+   "discord-protocol",
+   "data-readonly"
+  ]
+ },
+ "risk": {
+  "name": "RISK",
+  "cn": "風控長（有否決權）",
+  "dept": "交易",
+  "kind": "程式 + LLM",
+  "model": "haiku",
+  "hourly_calls": 6,
+  "skills": [
+   "risk-gate",
+   "position-sizing",
+   "discord-protocol",
+   "data-readonly"
+  ]
+ },
+ "exec": {
+  "name": "EXEC",
+  "cn": "交易執行員",
+  "dept": "交易",
+  "kind": "程式（無 LLM）",
+  "model": "—（事件摘要用 haiku，可關閉）",
+  "hourly_calls": 2,
+  "skills": [
+   "bitget-execution",
+   "ratchet-management",
+   "data-integrity"
+  ]
+ },
+ "lab": {
+  "name": "LAB",
+  "cn": "量化研究／回測員",
+  "dept": "交易",
+  "kind": "LLM（寫程式）",
+  "model": "sonnet",
+  "hourly_calls": 2,
+  "skills": [
+   "backtest-walkforward",
+   "performance-metrics",
+   "data-readonly",
+   "discord-protocol"
+  ]
+ },
+ "redteam": {
+  "name": "REDTEAM",
+  "cn": "紅隊審核員（盲審）",
+  "dept": "交易",
+  "kind": "LLM",
+  "model": "opus",
+  "hourly_calls": 4,
+  "skills": [
+   "blind-review",
+   "backtest-walkforward",
+   "data-readonly",
+   "discord-protocol"
+  ]
+ },
+ "audit": {
+  "name": "AUDIT",
+  "cn": "績效稽核／交易日誌",
+  "dept": "交易",
+  "kind": "LLM",
+  "model": "sonnet",
+  "hourly_calls": 6,
+  "skills": [
+   "trade-postmortem",
+   "performance-metrics",
+   "data-readonly",
+   "discord-protocol"
+  ]
+ },
+ "watch": {
+  "name": "WATCH",
+  "cn": "戰情室／監控",
+  "dept": "交易",
+  "kind": "程式 + LLM 週報",
+  "model": "haiku",
+  "hourly_calls": 1,
+  "skills": [
+   "agent-health-monitoring",
+   "llm-budget",
+   "data-readonly"
+  ]
+ },
+ "forge": {
+  "name": "FORGE",
+  "cn": "工程師／修復與能力開發",
+  "dept": "工程",
+  "kind": "LLM（寫程式）",
+  "model": "opus",
+  "hourly_calls": 3,
+  "skills": [
+   "agent-forge",
+   "skill-authoring",
+   "discord-protocol",
+   "data-readonly"
+  ]
+ },
+ "cmo": {
+  "name": "CMO",
+  "cn": "行銷策略長",
+  "dept": "行銷",
+  "kind": "LLM",
+  "model": "sonnet",
+  "hourly_calls": 1,
+  "skills": [
+   "marketing-strategy",
+   "content-calendar",
+   "discord-protocol",
+   "data-readonly"
+  ]
+ },
+ "creative": {
+  "name": "CREATIVE",
+  "cn": "內容創作與發佈",
+  "dept": "行銷",
+  "kind": "LLM + Canva MCP",
+  "model": "sonnet",
+  "hourly_calls": 2,
+  "skills": [
+   "ig-copywriting",
+   "canva-content",
+   "chart-rendering",
+   "content-knowledge",
+   "discord-protocol",
+   "data-readonly"
+  ]
+ },
+ "growth": {
+  "name": "GROWTH",
+  "cn": "成長與數據分析",
+  "dept": "行銷",
+  "kind": "LLM + API",
+  "model": "sonnet",
+  "hourly_calls": 2,
+  "skills": [
+   "growth-analytics",
+   "seo-keywords",
+   "audience-research",
+   "discord-protocol",
+   "data-readonly"
+  ]
+ }
+}

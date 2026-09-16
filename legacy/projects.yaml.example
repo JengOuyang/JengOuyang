@@ -1,0 +1,44 @@
+# 舊專案登錄表 —— 複製成 legacy/projects.yaml 後填寫
+#
+#   python scripts/scan_legacy.py --all        # 依本檔盤點全部專案，產生索引與比較表
+#   python scripts/scan_legacy.py --project qt # 只盤點其中一個
+#
+# 為什麼要登錄而不是每次打路徑：多個專案會有「同一種能力有兩三個版本」的情況，
+# 必須讓 CEO 看得到全部候選才能選，否則你會移植到比較舊的那一個。
+
+projects:
+  - id: qt                                   # 短代號，會用在檔名與 TASK_ASSIGN
+    name: 量化交易主專案
+    path: C:\Users\<你>\projects\quant-trader
+    status: production                       # production | prototype | abandoned
+    trust: high                              # high | medium | low —— 這份程式被市場驗證的程度
+    notes: |
+      策略已通過 2 個月 Gate A 測試（真實樣本，非回測）。
+      K 線採集與 Bitget 串接長期運行中。
+    proven:                                  # 「已驗證」的具體事實，CEO 會據此決定優先移植誰
+      - 策略通過 2 個月 Gate A（實盤／模擬盤樣本）
+      - Bitget 下單與部位查詢連續運行未中斷
+    known_issues:                            # 踩過的坑（這比程式本身更值錢）
+      - 資金費率結算時間點的處理曾出錯
+      - 交易所限流在高波動時會觸發
+
+  - id: dash
+    name: 戰情室與行動端
+    path: C:\Users\<你>\projects\war-room
+    status: production
+    trust: medium
+    proven:
+      - Tailscale 手機端可穩定觀看
+    known_issues:
+      - WebSocket 斷線後不會自動重連
+
+  - id: daily
+    name: 每日盤面與總經推送
+    path: C:\Users\<你>\projects\daily-brief
+    status: production
+    trust: medium
+    proven:
+      - Canva 產圖流程可用
+      - Notion 每日推送穩定
+    known_issues:
+      - Canva OAuth 需定期重新登入

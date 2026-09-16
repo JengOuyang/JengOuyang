@@ -1,0 +1,114 @@
+# 責任與寫入權的單一真相（OWNERSHIP.yaml）
+#
+# 這份檔案回答三個問題，而且每個問題只有一個答案：
+#   1. 每一項責任的「唯一負責人」是誰？（不重疊）
+#   2. 每一項產出交給誰、對方必須做什麼？（無縫銜接）
+#   3. 每一條路徑「誰能寫」？（權限隔離）
+#
+# scripts/verify_isolation.py 依此驗證 .claude/settings.json 與 agents.yaml；
+# lint 第 19、20 項會擋下任何與本檔不符的設定。改本檔 = 改制度，需 Owner 核准。
+schema_version: 1
+
+# ── 一、責任歸屬：每一項恰好一個 owner，不得重複 ────────────────
+responsibilities:
+  # 交易資料
+  外部資料採集:            {owner: feed,     note: "只從外部取得並提交；不做跨來源價差判斷"}
+  指標計算:                {owner: feed,     note: "POC/VAH/VAL 等一律由此產出，其他人只讀 v_indicators"}
+  商品宇宙重算:            {owner: feed,     note: "只提名；啟用需 Owner !approve"}
+  資料完整性與備份:        {owner: ledger,   note: "只處理已入庫資料，不打外部 API"}
+  跨來源交叉驗證:          {owner: ledger,   note: "讀庫內 FEED 已寫入的兩個 source"}
+  # 分析與決策
+  總經判斷:                {owner: macro}
+  regime_判定:             {owner: macro,    note: "季審第 2 步"}
+  高時框結構分析:          {owner: chart}
+  型態辨識與MSS判定:       {owner: chart}
+  進場擇時:                {owner: chart}
+  structure_stop建議:      {owner: chart,    note: "建議值；EXEC 的 R3 公式為準"}
+  # 閘門與執行
+  倉位計算:                {owner: risk,     note: "程式；LLM 只解釋"}
+  Gate決策:                {owner: risk}
+  帳戶級熔斷檢查:          {owner: risk}
+  下單與撤單:              {owner: exec}
+  棘輪推進:                {owner: exec,     note: "R0–R4；唯一的止損移動者"}
+  交易所對帳:              {owner: exec}
+  # 驗證與稽核
+  事後解剖:                {owner: audit}
+  績效量尺:                {owner: audit,    note: "交易績效；行銷成效歸 growth"}
+  回測與重擬合:            {owner: lab}
+  盲審:                    {owner: redteam}
+  程式行為審查:            {owner: redteam,  note: "FIX_PROPOSAL 的行為面"}
+  規則語意審查:            {owner: risk,     note: "FIX_PROPOSAL 的條文面"}
+  # 系統
+  派工與驗收:              {owner: ceo}
+  對Owner匯報:             {owner: ceo}
+  系統健康與額度:          {owner: watch}
+  參數寫入:                {owner: watch,    note: "僅在 Owner !approve 之後"}
+  程式修復與開發:          {owner: forge}
+  Skill維護:               {owner: forge,    note: "程序記憶的唯一維護者"}
+  手冊一致性維護:          {owner: forge,    note: "憲法四的唯一例外"}
+  # 行銷
+  行銷策略與Persona:       {owner: cmo}
+  內容產製:                {owner: creative}
+  成長數據與實驗:          {owner: growth}
+  行銷成效量尺:            {owner: growth}
+
+# ── 二、交接契約：產出者 → 接收者，接收者必須做什麼 ──────────────
+# msg_type 的完整清單在 shared/PROTOCOL.md；這裡只列「接收者必須有動作」的關鍵交接。
+handoffs:
+  - {msg: MACRO_BRIEF,      from: macro,  to: [chart, risk],   must: "CHART 用於 A2；RISK 用於 G2"}
+  - {msg: HTF_CONTEXT,      from: chart,  to: [redteam, risk], must: "RISK 用 tradeable_direction 執行 G1"}
+  - {msg: TRADE_PLAN,       from: chart,  to: [risk],          must: "RISK 立即跑 Gate 並回 RISK_DECISION"}
+  - {msg: RISK_DECISION,    from: risk,   to: [exec, chart],   must: "EXEC 下單；CHART 收退件類別改善分析"}
+  - {msg: POSITION_CLOSED,  from: exec,   to: [audit],         must: "AUDIT 15 分鐘內產出 TRADE_REVIEW"}
+  - {msg: TRADE_REVIEW,     from: audit,  to: [chart, risk],   must: "RISK 更新 kelly_p 來源；CHART 納入改善"}
+  - {msg: RECONCILE_ALERT,  from: exec,   to: [watch, ceo],    must: "WATCH 60 秒內 @Owner 並確認 HALT"}
+  - {msg: OPT_EVIDENCE,     from: audit,  to: [lab],           must: "LAB 季審第 3 步的輸入"}
+  - {msg: REGIME_REPORT,    from: macro,  to: [lab],           must: "LAB 回測分段依據"}
+  - {msg: REFIT_REPORT,     from: lab,    to: [redteam, risk], must: "REDTEAM 重跑驗證；RISK 發 RISK_SIGNOFF"}
+  - {msg: RISK_SIGNOFF,     from: risk,   to: [ceo],           must: "CEO 彙整送 Owner；未簽核不得送審"}
+  - {msg: UNIVERSE_UPDATE,  from: feed,   to: [ceo],           must: "CEO 轉 HUMAN_DECISION_REQUIRED；未核准不得啟用"}
+  - {msg: CONTENT_DRAFT,    from: creative, to: [cmo],         must: "CMO 回 REVIEW_RESULT 或 20 分鐘視為 AGREE"}
+  - {msg: MARKETING_PLAN,   from: cmo,    to: [creative, growth], must: "GROWTH 據此設定本週 KPI 目標"}
+  - {msg: BUG_REPORT,       from: any,    to: [forge],         must: "FORGE 重現→修復→FIX_PROPOSAL"}
+
+# ── 三、寫入權：每條路徑只有一個 owner，其餘 Agent 一律不得寫 ──────
+# 「怎麼寫」欄位說明這條路徑是直接寫還是必須經過守門程式。
+writable_paths:
+  "agents/<self>/outbox/**":   {owner: any_self, how: "直接寫；Router 上傳後清空"}
+  "marketing/**":              {owner: creative, how: "直接寫（草稿）；發佈仍需 Owner !publish"}
+  "backtest/**":               {owner: lab,      how: "直接寫；研究用、可丟棄"}
+  "data/**":                   {owner: none,     how: "**沒有任何 Agent 能直接寫**；唯一入口是 engine/ingest_server.py（token 驗證 + hash chain）"}
+  "shared/**":                 {owner: none,     how: "**沒有任何 Agent 能寫**；變更走 RISK_RULES H 節 → Owner !approve → WATCH 以 apply_change.py 寫入"}
+  "agents/*/.context/**":      {owner: none,     how: "生成物；只有 scripts/build_context.py 能寫，且有輸出雜湊驗證"}
+  "agents/*/MANUAL.md":        {owner: none,     how: "FORGE 在 worktree 裡改（它是維護者），經 merge_fix.py 進活動樹；排程行與訊息收發段由 sync_* 生成"}
+  "agents/*/PERSONA.md":       {owner: none,     how: "同上；且不得寫入「上次的經驗」（憲法七）"}
+  "agents/*/USER.md":          {owner: none,     how: "只有 Owner 手動編輯"}
+  "agents/forge/worktree/**":  {owner: forge,    how: "FORGE 的**唯一**寫入區：git worktree 沙箱。它在這裡改 engine/router/scripts/docs/db 的副本，合併由 merge_fix.py 執行（FORGE 無 merge/push 權）"}
+  "engine/**":                 {owner: none,     how: "活動樹唯讀；修改走 FORGE 的 worktree → merge_fix.py（需 REDTEAM + Owner 核准）"}
+  "router/**":                 {owner: none,     how: "同上；.env 任何 Agent 都不得讀寫"}
+  "scripts/**":                {owner: none,     how: "同上"}
+  "router/.env":               {owner: none,     how: "**任何 Agent 都不得讀寫**；只有 Owner"}
+  "db/**":                     {owner: none,     how: "同 engine/：worktree 改 → merge_fix.py；schema 變更需 Owner 核准"}
+  "docs/**":                   {owner: none,     how: "同上；數字由 verify_docs_claims.py 驗證"}
+
+# ── 四、資料讀取權：以視圖為準（shared/view_grants.yaml 是細節）──────
+read_model: "LLM Agent 只能透過 scripts/query_readonly.py 讀被授權的視圖；底層表一律不可讀。"
+
+# ── 五、誠實聲明：工具層 vs OS 層 ──────────────────────────────
+enforcement_honesty: |
+  Claude Code 的 allow/deny 是「工具層」授權，不是作業系統層的沙箱。
+  任何同時擁有「寫檔」與「執行任意程式」的 Agent（FORGE / LAB），單靠工具層都能繞過
+  （寫一支腳本再執行它）。因此本專案採四層防線，由外而內：
+    L0 作業系統層：Claude Code 內建 sandbox（Linux/WSL2 用 bubblewrap、macOS 用 Seatbelt）。
+                  限制套用到 Bash 指令**與其所有子程序**，這是逃逸路徑真正被關上的地方。
+                  規則由 scripts/sync_sandbox.py 從本檔的 writable_paths 生成，lint 第 21 項驗證。
+                  ⚠️ 原生 Windows 不支援 → Router 與 15 個 Agent 必須跑在 WSL2 裡。
+                  Router 以 --settings failIfUnavailable=true 呼叫，沙箱起不來就啟動失敗，
+                  而不是靜默降級成沒有保護。
+    L1 工具層：settings.json 的 allow/deny（擋掉絕大多數誤觸，也是 L0 規則的來源之一）
+    L2 執行層：FORGE / LAB 只在 git worktree 沙箱內寫，合併由 merge_fix.py 把關
+    L3 偵測層：scripts/guard_paths.py 在每次 Agent 執行前後比對受保護檔案的雜湊，
+              發現未授權變更立即還原（git checkout）、HALT 並 @Owner
+  L3 是「偵測 + 自動回滾」而不是「預防」；L0 才是預防。兩者都要，因為 L0 只涵蓋 Bash 子程序，
+  而 Read/Write/Edit 這類內建工具走的是 L1 權限系統，不經過沙箱。
+  完整說明與外部實務對照見 docs/12_DIGITAL_BOUNDARY.md。

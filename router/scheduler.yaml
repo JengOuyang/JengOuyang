@@ -1,0 +1,72 @@
+# 排程：到點時 TD-ROUTER 在指定頻道發「[CRON:name] @Agent 指示」，該 Agent 的 Bot 收到後處理（全部留紀錄）
+# precheck：先跑程式，輸出以 SKIP 開頭則不觸發（省 LLM 額度）
+timezone: Asia/Taipei
+#
+# 排程設計規則（Claude Pro 是 5 小時滾動窗，痛的是「爆量」不是「總量」）
+#   R1 任兩個 opus 任務間隔 ≥ 5 小時
+#   R2 任一 5 小時滑動窗的權重總和 ≤ 6（opus=3 / sonnet=1 / haiku=0.2）
+#   R3 週報拆到週六與週日，且都排在 18:40 之後（13:30 的 redteam opus 會吃掉整個下午窗）
+#   R4 月報拆到 1–5 號的 23:50（月 K 也在台北 08:00 才收線，不能排凌晨），
+#      opus 月度任務排 5 號 02:10（與 13:30、週日 21:00 的 opus 都隔 ≥ 5 小時）
+#      注意：任何「幾號」都可能是任何星期幾，lint 第 12 項是用「每日＋該星期＋該號」的最壞情況檢查
+#   R5 交易路徑（chart-1h → risk → exec）永遠不讓路；擠不下時延後的是 cmo / growth / lab
+#   R6 互斥任務（mutex_with）：precheck 決定跑主任務或備援，額度只計一次
+#   R7 主任務與其互斥備援「雙雙 SKIP」＝當天沒有該產出，Router 必須在 #alerts @Blacksheep
+#      （靜默的 SKIP 會造成整天沒有 HTF_CONTEXT 而沒有人發現）
+# scripts/lint_agents.py 會檢查 R1 與 R2，改排程後請重跑。
+#
+jobs:
+  # ---- 交易：程式型（不用 LLM） ----
+  - {name: feed-collect, label: "採集",        cron: "1 * * * *",    agent: feed,   channel_env: CH_MARKET_DATA, instruction: "每小時採集"}
+  - {name: feed-indicators, label: "指標",     cron: "3 * * * *",    agent: feed,   channel_env: CH_MARKET_DATA, instruction: "計算指標"}
+  - {name: feed-universe, label: "宇宙更新",       cron: "30 0 1 * *",   agent: feed,   channel_env: CH_MARKET_DATA, instruction: "重算 T2 名單"}
+  - {name: ledger-anchor, label: "錨點",       cron: "5 0 * * *",    agent: ledger, channel_env: CH_AUDIT_LOG,   instruction: "Merkle 錨點"}
+  - {name: ledger-crosscheck, label: "交叉驗證",   cron: "10 0 * * *",   agent: ledger, channel_env: CH_AUDIT_LOG,   instruction: "交叉驗證"}
+  - {name: ledger-backup, label: "備份",       cron: "20 0 * * *",   agent: ledger, channel_env: CH_AUDIT_LOG,   instruction: "備份"}
+  - {name: risk-account-check, label: "帳戶檢查",  cron: "*/5 * * * *",  agent: risk,   channel_env: CH_RISK,        instruction: "帳戶級檢查", program: true}
+  - {name: exec-ratchet, label: "棘輪",       cron: "*/5 * * * *",  agent: exec,   channel_env: CH_EXECUTION,   instruction: "棘輪推進（RISK_RULES E 節 R0–R4）", program: true}
+  - {name: exec-reconcile, label: "對帳",     cron: "*/5 * * * *",  agent: exec,   channel_env: CH_EXECUTION,   instruction: "與交易所對帳（C7 的觸發來源）", program: true}
+  - {name: watch-heartbeat, label: "心跳",     cron: "*/15 * * * *", agent: watch,  channel_env: CH_AGENT_HEALTH, instruction: "心跳檢查", program: true}
+  - {name: watch-usage, label: "用量",         cron: "0 * * * *",    agent: watch,  channel_env: CH_AGENT_HEALTH, instruction: "用量檢查", program: true}
+  - {name: growth-fetch, label: "IG數據",        cron: "0 21 * * *",   agent: growth, channel_env: CH_GROWTH,      instruction: "抓 IG Insights", program: true}
+
+  # ---- 交易：LLM ----
+  - {name: macro-daily-brief, label: "總經日報",   cron: "30 7 * * *",   agent: macro,  channel_env: CH_MACRO,    instruction: "產出今日 MACRO_BRIEF（macro-briefing skill），更新事件日曆。"}
+  - {name: macro-event-check, label: "事件檢查",   cron: "0 */2 * * *",  agent: macro,  channel_env: CH_MACRO,    instruction: "未來 4 小時有 HIGH 事件，請發 EVENT_WARNING。", precheck: "python scripts/calendar_update.py --precheck-4h", model: haiku}
+  - {name: macro-weekly, label: "總經週報",       cron: "40 20 * * 6",  agent: macro,  channel_env: CH_MACRO,    instruction: "週度總經回顧：本週 regime、我上週判斷的對錯、下週事件行事曆。"}
+  - {name: chart-htf, label: "高時框",           cron: "8 8 * * *",    agent: chart,  channel_env: CH_ANALYSIS, instruction: "對所有啟用層標的產出 HTF_CONTEXT，@REDTEAM 審核。", precheck: "python scripts/daily_close_check.py", model: opus}
+  - {name: chart-htf-retry, label: "高時框重試",           cron: "40 8 * * *",    agent: chart,  channel_env: CH_ANALYSIS, instruction: "對所有啟用層標的產出 HTF_CONTEXT，@REDTEAM 審核。", precheck: "python scripts/daily_close_check.py", model: opus, mutex_with: chart-htf}
+  - {name: chart-1h, label: "1H掃描",            cron: "5 * * * *",    agent: chart,  channel_env: CH_ANALYSIS, instruction: "prefilter 發現候選匯合區（見附件 JSON），執行 1H 決策樹。", precheck: "python scripts/prefilter_1h.py"}
+  - {name: redteam-htf-review, label: "盲審HTF",  cron: "30 13 * * *",   agent: redteam, channel_env: CH_ANALYSIS, instruction: "盲審今日 HTF_CONTEXT（Router 已附盲審包）。"}
+  - {name: audit-daily, label: "交易日報",         cron: "20 8 * * *",   agent: audit,  channel_env: CH_JOURNAL,  instruction: "產出昨日交易日報。"}
+  - {name: ceo-daily-report, label: "每日匯報",    cron: "35 8 * * *",   agent: ceo,    channel_env: CH_CEO_DAILY, instruction: "產出每日總匯報（MANUAL 模板），列出 HUMAN_DECISION_REQUIRED。"}
+  - {name: ceo-task-sweep, label: "任務掃描",      cron: "*/30 * * * *", agent: ceo,    channel_env: CH_TASKS,    instruction: "有待審核或逾期任務，請處理。", precheck: "python scripts/task_db.py --precheck", model: haiku}
+  - {name: lab-weekly-ideas, label: "研究提案",    cron: "40 18 * * 6",   agent: lab,    channel_env: CH_BACKTEST, instruction: "提出本週 1–2 個可回測假設。"}
+  - {name: audit-weekly, label: "止損週報",        cron: "20 19 * * 6",   agent: audit,  channel_env: CH_JOURNAL,  instruction: "止損解剖週報。"}
+  - {name: risk-weekly, label: "風控週報",         cron: "0 20 * * 6",  agent: risk,   channel_env: CH_RISK,     instruction: "風控週報。", model: sonnet}
+  - {name: ceo-weekly-meeting, label: "週會",  cron: "0 21 * * 0",   agent: ceo,    channel_env: CH_MEETING_ROOM, instruction: "主持週會：開 thread、依 agenda 點名、發 MEETING_MINUTES。", model: opus}
+  - {name: audit-monthly, label: "月報",       cron: "50 23 1 * *",    agent: audit,  channel_env: CH_JOURNAL,  instruction: "L2 月審（OPTIMIZATION_CYCLE §2）：回答六個必答問題、更新 setup 勝率、列出停用候選，簽發月度績效報表。@RISK @CEO"}
+  - {name: redteam-monthly-stress, label: "壓力測試", cron: "10 2 5 * *", agent: redteam, channel_env: CH_MEETING_ROOM, instruction: "月度壓力情境檢討。"}
+  - {name: watch-weekly, label: "系統週報",        cron: "0 20 * * 0",  agent: watch,  channel_env: CH_AGENT_HEALTH, instruction: "系統健康與用量週報。"}
+
+  # ---- 策略季審（OPTIMIZATION_CYCLE §3；1/4/7/10 月）----
+  - {name: lab-quarterly-refit, label: "季審回測",  cron: "40 2 7 1,4,7,10 *",  agent: lab,    channel_env: CH_BACKTEST, instruction: "L3 季審第 3–4 步：對本季假設跑完整回測，並用最新資料重跑 walk-forward 檢查參數是否仍在高原（±20% 擾動需保有 70% expectancy）。產出 BACKTEST_REPORT + REFIT_REPORT @REDTEAM。"}
+  - {name: redteam-quarterly-review, label: "季審盲審", cron: "10 2 8 1,4,7,10 *", agent: redteam, channel_env: CH_BACKTEST, instruction: "L3 季審第 5 步：盲審 LAB 的季審報告並自己重跑 --verify，特別審過度擬合徵狀。@RISK", model: opus}
+  - {name: ceo-quarterly-decision, label: "季審送審", cron: "0 16 9 1,4,7,10 *",  agent: ceo,    channel_env: CH_CEO_DAILY, instruction: "L3 季審第 7 步：彙整 LAB/REDTEAM/RISK 結論成一頁 HUMAN_DECISION_REQUIRED（改什麼、為什麼、風險、不改會怎樣），送 Blacksheep 核准。維持現狀也要明說。"}
+  - {name: audit-quarterly-evidence, label: "季審證據", cron: "0 16 5 1,4,7,10 *", agent: audit, channel_env: CH_JOURNAL, instruction: "L3 季審第 1 步：交出本季 TRADE_REVIEW 結構化摘要與三個月的假設清單（OPT_EVIDENCE）@LAB。"}
+  - {name: macro-quarterly-regime, label: "季審regime", cron: "0 16 6 1,4,7,10 *", agent: macro,  channel_env: CH_MACRO,    instruction: "L3 季審第 2 步：本季 regime 判定（趨勢／震盪／高波動）與前一季比較，供 LAB 回測分段參考。"}
+  - {name: risk-quarterly-signoff, label: "季審風險簽核", cron: "0 16 8 1,4,7,10 *", agent: risk, channel_env: CH_RISK, instruction: "L3 季審第 6 步：對 REFIT_REPORT 發 RISK_SIGNOFF（MaxDD、最長連虧 vs Monte Carlo 95 百分位、尾部 5%、群組集中度）@CEO @LAB。任一不過就不簽。", model: sonnet}
+
+  # ---- 工程 ----
+  - {name: forge-weekly-logs, label: "日誌巡檢",   cron: "40 18 * * 1",    agent: forge,  channel_env: CH_FORGE,    instruction: "檢查 logs/ 重複錯誤模式，必要時開 FIX。"}
+  - {name: forge-monthly-lint, label: "月度lint",  cron: "50 23 2 * *",   agent: forge,  channel_env: CH_FORGE,    instruction: "執行 scripts/lint_agents.py 並修正不一致。"}
+
+  # ---- 行銷 ----
+  - {name: creative-daily, label: "每日內容",      cron: "0 15 * * *",    agent: creative, channel_env: CH_MARKETING_REVIEW, instruction: "依今日 MARKETING_PLAN slot 產出 CONTENT_DRAFT（Canva 圖 + 文案），貼預覽並發 PUBLISH_REQUEST。"}
+  - {name: creative-edu, label: "教育貼文",        cron: "40 16 * * 2,4", agent: creative, channel_env: CH_MARKETING_REVIEW, instruction: "產出一篇教育貼文草稿。"}
+  - {name: creative-recap, label: "週回顧",      cron: "0 16 * * 1",  agent: creative, channel_env: CH_MARKETING_REVIEW, instruction: "依 AUDIT 週報產出週回顧草稿。"}
+  - {name: growth-weekly, label: "成長週報",       cron: "40 18 * * 0",  agent: growth, channel_env: CH_GROWTH,   instruction: "GROWTH_REPORT + 關鍵字題材清單。"}
+  - {name: cmo-weekly-plan, label: "下週計畫",     cron: "0 16 * * 0",  agent: cmo,    channel_env: CH_MARKETING, instruction: "產出下週 MARKETING_PLAN。"}
+  - {name: cmo-weekly-report, label: "行銷週報",   cron: "20 19 * * 0",  agent: cmo,    channel_env: CH_MARKETING, instruction: "行銷週報給 CEO。"}
+  - {name: growth-monthly, label: "客戶分析",      cron: "50 23 3 * *",   agent: growth, channel_env: CH_GROWTH,   instruction: "客戶分析與 Persona 修正建議、競品對照。"}
+  - {name: cmo-monthly, label: "月度策略",         cron: "50 23 4 * *",   agent: cmo,    channel_env: CH_MARKETING, instruction: "更新 Persona、hashtag 策略、競品定位。"}

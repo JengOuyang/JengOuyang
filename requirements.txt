@@ -1,0 +1,20 @@
+# TRADE-DESK 相依（Python 3.11+）
+# 刻意保持極小：這個系統的複雜度應該在規則裡，不在相依樹裡。
+# 這份清單由 scripts/lint_agents.py 第 24 項驗證——程式 import 了什麼，這裡就必須有。
+
+# ── Router 執行期（缺任何一個，步驟 8 啟動時就會 ModuleNotFoundError）──
+discord.py>=2.4          # Discord Gateway：Router 持有 16 條 bot 連線
+APScheduler>=3.10        # 45 個排程任務的觸發器
+python-dotenv>=1.0       # 讀 router/.env
+PyYAML>=6.0              # 所有設定檔（agents / scheduler / OWNERSHIP / view_grants）
+
+# ── 契約與資料 ──
+jsonschema>=4.21         # shared/schemas/*.json 的訊息契約驗證
+pandas>=2.2              # K 線與回測的資料處理
+numpy>=1.26
+
+# ── 工具 ──
+Markdown>=3.5            # scripts/build_site.py 產生文件站台
+pytest>=8.0              # 回歸測試
+
+# 交易所與外部服務的 SDK 由 CEO 在建置階段依 BUILD_PLAN 加入（見 docs/08_BUILD_PLAN.md）

@@ -1,0 +1,29 @@
+# 資料存取權限矩陣 — query_readonly.py 在執行前強制檢查
+# 原則：Agent 只能查「視圖」，不能查底層資料表；每個視圖已在 db/002_views.sql 中做過欄位裁切
+schema_version: 1
+
+# 所有 Agent 都能查（系統狀態，不含任何交易或內容細節）
+common: [v_system_status, v_universe_active, v_calendar_upcoming]
+
+grants:
+  ceo:      [v_equity_daily, v_today_pnl, v_open_positions, v_task_board, v_agent_status, v_content_pipeline, v_perf_summary, v_skill_failures, v_knowledge_validated]
+  macro:    [v_market_daily, v_funding_oi, v_macro_history]
+  feed:     [v_market_daily, v_funding_oi, v_data_quality]
+  ledger:   [v_data_quality, v_audit_anchor, v_row_counts]
+  # CHART 看得到退件「類別」但看不到門檻數值（防 Goodhart：優化通過率而非交易品質）
+  chart:    [v_market, v_market_daily, v_indicators, v_levels, v_funding_oi, v_setup_winrates, v_reject_categories, v_macro_current, v_my_open_positions, v_knowledge_validated]
+  risk: [v_market, v_indicators, v_setup_winrates, v_equity_daily, v_open_positions, v_exposure, v_risk_decisions, v_calendar_upcoming, v_knowledge_validated, v_backtest_history, v_trade_journal]
+  exec:     [v_open_positions, v_open_orders, v_equity_daily, v_approved_orders]
+  lab:      [v_market_daily, v_indicators, v_funding_oi, v_trade_journal, v_setup_winrates, v_backtest_history, v_knowledge_validated, v_knowledge_unverified]
+  # REDTEAM 盲審：v_blind_plan 已剔除 CHART 的 reasoning 與 confidence
+  redteam:  [v_blind_plan, v_blind_htf, v_market, v_indicators, v_levels, v_trade_journal, v_backtest_history, v_macro_current, v_knowledge_validated, v_knowledge_unverified]
+  audit:    [v_trade_journal, v_trades_closed, v_trade_plans_full, v_risk_decisions, v_market, v_indicators, v_equity_daily, v_setup_winrates, v_knowledge_validated]
+  watch: [v_agent_status, v_llm_usage, v_backup_status, v_equity_daily, v_open_positions, v_content_pipeline, v_task_board, v_data_quality]
+  forge:    [v_agent_status, v_bug_reports, v_fix_log, v_skill_failures, v_data_quality, v_llm_usage]
+  cmo:      [v_content_metrics, v_ig_insights_daily, v_content_pipeline, v_perf_public]
+  # CREATIVE 只拿得到「可公開」的盤面描述：方向與結構，無進場價、無止損、無倉位
+  creative: [v_public_context, v_macro_current, v_content_metrics, v_perf_public, v_content_pipeline]
+  growth:   [v_content_metrics, v_ig_insights_daily, v_content_pipeline]
+
+# 明確禁止（即使將來有人把表名加進視圖清單也會被擋）
+never_readable_by_llm: [orders, fills, positions, config_versions, llm_usage_raw]

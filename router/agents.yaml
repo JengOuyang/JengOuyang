@@ -1,0 +1,192 @@
+# TRADE-DESK Router — 16 隻 Bot（15 個 Agent + TD-ROUTER 系統帳號，用來發排程訊息）
+# kind: llm（claude -p）| program（執行 scripts）| router（只發排程訊息與系統公告）
+# model: haiku | sonnet | opus（Claude Code 的模型別名；Pro 方案可用者為準）
+# permission_mode: acceptEdits（可寫自己目錄）| plan | bypassPermissions（僅 FORGE/LAB 在 sandbox）
+global_parallel: 3          # 同時最多 3 個 claude -p（配合 Pro 額度）
+max_hops: 6                 # 一條訊息鏈最多傳遞幾跳（由 Router 記帳，不看 LLM 自報）
+max_a2a_turns: 5            # 同一 thread 內 Agent 之間最多來回幾輪，超過就升級給 Blacksheep
+chain_idle_reset_minutes: 30  # 一條鏈閒置這麼久就算結束，跳數歸零（否則頻道的計數器會永遠累加）
+
+discord:
+  # Discord 只接受 60 / 1440 / 4320 / 10080 分鐘。依頻道分層，否則每小時一個 thread 會把頻道塞爆。
+  thread_archive_minutes:
+    market-data: 60         # 每小時快照，看完就可封存
+    analysis: 60            # 1H 掃描，每小時一個
+    risk: 1440
+    execution: 1440
+    macro: 1440
+    journal: 1440
+    human-inbox: 1440
+    ceo-daily: 1440
+    tasks: 4320             # 任務要追蹤好幾天
+    marketing-review: 1440
+    growth: 4320
+    marketing: 4320
+    backtest: 4320          # 研究會拖比較久
+    meeting-room: 4320
+    forge: 10080            # 修 bug 可能跨週
+    agent-health: 1440
+    audit-log: 1440
+    alerts: 1440
+    default: 1440
+
+agents:
+  router:
+    name: TD-ROUTER
+    kind: router
+    token_env: DISCORD_TOKEN_ROUTER
+
+  ceo:
+    name: TD-CEO
+    kind: llm
+    token_env: DISCORD_TOKEN_CEO
+    model: sonnet               # 每日匯報＝sonnet；opus 只用在週會與季審送審（scheduler.yaml 指定）
+    max_turns: 15
+    permission_mode: acceptEdits
+    allowed_tools: ["Read", "Glob", "Grep", "Bash(python ../../scripts/query_readonly.py *)", "Bash(python ../../scripts/task_db.py *)"]
+    owner_commands: ["!status", "!task"]     # !approve 由 WATCH 執行、!unlock 由 EXEC 執行（LLM 說「已核准」不會改變任何狀態）
+    allow_public: false
+
+  macro:
+    name: TD-MACRO
+    kind: llm
+    token_env: DISCORD_TOKEN_MACRO
+    model: sonnet
+    max_turns: 20
+    allowed_tools: ["Read", "WebSearch", "WebFetch", "Bash(python ../../scripts/query_readonly.py *)", "Bash(python ../../scripts/write_macro.py *)"]
+
+  feed:
+    name: TD-FEED
+    kind: program
+    token_env: DISCORD_TOKEN_FEED
+    scripts:
+      feed-collect: "python scripts/collect_hourly.py"
+      feed-indicators: "python scripts/compute_indicators.py"
+      feed-universe: "python scripts/refresh_universe.py"
+      on_mention: "python scripts/feed_status.py"
+
+  ledger:
+    name: TD-LEDGER
+    kind: program
+    token_env: DISCORD_TOKEN_LEDGER
+    scripts:
+      ledger-anchor: "python scripts/merkle_anchor.py"
+      ledger-crosscheck: "python scripts/crosscheck.py"
+      ledger-backup: "python scripts/backup.py"
+      on_mention: "python scripts/verify_chain.py"
+
+  chart:
+    name: TD-CHART
+    kind: llm
+    token_env: DISCORD_TOKEN_CHART
+    model: sonnet               # chart-htf job 指定 opus
+    max_turns: 20
+    allowed_tools: ["Read", "Bash(python ../../scripts/query_readonly.py *)", "Bash(python ../../scripts/levels.py *)", "Bash(python ../../scripts/write_plan.py *)"]
+
+  risk:
+    name: TD-RISK
+    kind: llm                   # LLM 只做解釋；Gate 程式由 scheduler 的 program job 與 #analysis 監聽程式執行
+    token_env: DISCORD_TOKEN_RISK
+    model: haiku
+    max_turns: 8
+    allowed_tools: ["Read", "Bash(python ../../scripts/query_readonly.py *)", "Bash(python ../../engine/risk_gate.py explain *)"]
+    scripts:
+      risk-account-check: "python engine/risk_gate.py --account-check"
+      on_mention: "python engine/risk_gate.py --from-discord"   # 訊息含 TRADE_PLAN → 執行 Gate；否則 exit 3 交給 LLM 解釋
+
+  exec:
+    name: TD-EXEC
+    kind: program
+    token_env: DISCORD_TOKEN_EXEC
+    owner_commands: ["!flatten", "!pause", "!resume", "!unlock"]
+    scripts:
+      exec-ratchet: "python engine/executor.py ratchet"        # 每 5 分：止損只進不退
+      exec-reconcile: "python engine/executor.py reconcile"    # 每 5 分：對帳，不一致即 C7
+      "owner:!flatten": "python engine/executor.py flatten"
+      "owner:!pause": "python engine/executor.py pause"
+      "owner:!resume": "python engine/executor.py resume"
+      "owner:!unlock": "python engine/executor.py unlock"      # 解除 HALT，寫入稽核紀錄
+      on_mention: "python engine/executor.py status"
+
+  lab:
+    name: TD-LAB
+    kind: llm
+    token_env: DISCORD_TOKEN_LAB
+    model: sonnet
+    effort: medium
+    max_turns: 40
+    timeout_sec: 2400
+    permission_mode: acceptEdits
+    allowed_tools: ["Read", "Write", "Edit", "Bash(python ../../backtest/*)", "Bash(git *)", "Bash(python ../../scripts/query_readonly.py *)"]
+
+  redteam:
+    name: TD-REDTEAM
+    kind: llm
+    token_env: DISCORD_TOKEN_REDTEAM
+    model: opus
+    stateless: true             # 盲審：不帶 thread 記憶
+    max_turns: 10
+    allowed_tools: ["Read", "Bash(python ../../scripts/query_readonly.py *)", "Bash(python ../../backtest/* --verify)"]
+
+  audit:
+    name: TD-AUDIT
+    kind: llm
+    token_env: DISCORD_TOKEN_AUDIT
+    model: sonnet
+    max_turns: 15
+    allowed_tools: ["Read", "Bash(python ../../scripts/query_readonly.py *)", "Bash(python ../../engine/metrics.py *)", "Bash(python ../../scripts/write_review.py *)"]
+
+  watch:
+    name: TD-WATCH
+    kind: llm                   # 週報與 !budget/!agents 用 LLM；心跳與用量檢查為 program job
+    token_env: DISCORD_TOKEN_WATCH
+    model: haiku
+    max_turns: 6
+    owner_commands: ["!budget", "!agents", "!approve"]
+    allowed_tools: ["Read", "Bash(python ../../scripts/query_readonly.py *)", "Bash(python ../../scripts/usage.py *)"]
+    scripts:
+      "owner:!approve": "python scripts/apply_change.py"      # 寫 config_versions + 打 tag，不是 LLM 說了算
+      watch-heartbeat: "python scripts/heartbeat_check.py"
+      watch-usage: "python scripts/usage.py --check"
+
+  forge:
+    name: TD-FORGE
+    kind: llm
+    token_env: DISCORD_TOKEN_FORGE
+    model: sonnet               # forge 設計類任務可在訊息內用 <!-- model:opus --> 指定
+    effort: medium
+    max_turns: 40
+    timeout_sec: 2400
+    permission_mode: acceptEdits
+    allowed_tools: ["Read", "Write", "Edit", "Glob", "Grep", "Bash(python *)", "Bash(pytest *)", "Bash(git *)", "Bash(python ../../scripts/lint_agents.py *)"]
+
+  cmo:
+    name: TD-CMO
+    kind: llm
+    token_env: DISCORD_TOKEN_CMO
+    model: sonnet
+    max_turns: 15
+    allowed_tools: ["Read", "WebSearch", "WebFetch", "Bash(python ../../scripts/query_readonly.py *)", "Bash(python ../../scripts/write_marketing.py *)"]
+
+  creative:
+    name: TD-CREATIVE
+    kind: llm
+    token_env: DISCORD_TOKEN_CREATIVE
+    model: sonnet
+    max_turns: 25
+    mcp_config: router/mcp_canva.json      # Canva MCP（OAuth 先在互動模式 /mcp 登入一次）
+    owner_commands: ["!reject", "!publish"]     # !reject → LLM 修稿；!publish → 程式發佈（LLM 不碰 Meta token）
+    scripts:
+      "owner:!publish": "python scripts/publisher.py"
+      on_mention: "python scripts/creative_gate.py"   # 只做輸入檢查（例如 MARKETING_PLAN 是否存在），通常 exit 3 交給 LLM
+    allowed_tools: ["Read", "Write", "Bash(python ../../scripts/query_readonly.py *)", "Bash(python ../../scripts/render_chart.py *)", "Bash(python ../../scripts/write_marketing.py *)", "mcp__canva__*"]
+
+  growth:
+    name: TD-GROWTH
+    kind: llm
+    token_env: DISCORD_TOKEN_GROWTH
+    model: sonnet
+    max_turns: 15
+    allowed_tools: ["Read", "WebSearch", "WebFetch", "Bash(python ../../scripts/query_readonly.py *)", "Bash(python ../../scripts/ig_insights.py *)", "Bash(python ../../scripts/trends.py *)", "Bash(python ../../scripts/gsc.py *)"]
+    scripts:
+      growth-fetch: "python scripts/ig_insights.py --fetch"

@@ -1,0 +1,58 @@
+# 四層商品宇宙 — 所有標的皆為 Bitget USDT-M 永續（productType: USDT-FUTURES）
+# 啟用哪一層由 strategy_params.yaml: active_tiers 決定（Owner !approve）
+schema_version: 1
+
+groups:                      # 相關性群組（RISK A12）
+  crypto-majors: {max_notional_x: 3.0, max_positions: 2}
+  crypto-alts:   {max_notional_x: 2.0, max_positions: 2}
+  metals:        {max_notional_x: 3.0, max_positions: 1}
+  us-equities:   {max_notional_x: 3.0, max_positions: 2}
+
+tiers:
+  T1:
+    name: 主流幣
+    group: crypto-majors
+    symbols: [BTCUSDT, ETHUSDT]
+    data_sources: {live: bitget, backtest_fill: binance}
+    history_min_years: 8
+    session: always
+    liquidity: {max_spread_bp: 3, min_depth_2pct_usd: 5000000}
+
+  T2:
+    name: 市值前 20 加密貨幣（動態）
+    group: crypto-alts
+    selection:
+      source: coingecko_marketcap
+      top_n: 20
+      exclude: [stablecoins, wrapped, liquid_staking, T1]
+      require_bitget_perp: true
+      min_listing_years: 3
+      refresh: monthly           # FEED 每月 1 日重算 → UNIVERSE_UPDATE
+    symbols_snapshot: []         # FEED 自動填入，例如 [SOLUSDT, BNBUSDT, XRPUSDT, ...]
+    data_sources: {live: bitget, backtest_fill: binance}
+    session: always
+    liquidity: {max_spread_bp: 5, min_depth_2pct_usd: 1000000}
+    extra_rules: {max_risk_per_trade_pct: 0.010, funding_block_8h: 0.001}
+
+  T3:
+    name: 貴金屬
+    group: metals
+    symbols: [XAUUSDT, XAGUSDT]
+    data_sources: {live: bitget, backtest_fill: spot_metals}   # 8 年回測以現貨金銀價拼接並標註基差
+    session:
+      type: comex
+      closed: ["Fri 17:00 America/New_York -> Sun 18:00 America/New_York", "daily 17:00-18:00 America/New_York"]
+    liquidity: {max_spread_bp: 3, min_depth_2pct_usd: 2000000, max_basis_pct: 0.5}
+    event_rules: [FOMC, CPI, NFP]
+
+  T4:
+    name: 美股／指數幣股永續
+    group: us-equities
+    symbols: [NVDAUSDT, TSLAUSDT, AAPLUSDT, SPYUSDT, QQQUSDT]   # 以 Bitget 合約列表 API 實際清單為準
+    data_sources: {live: bitget, backtest_fill: us_equities_spot}
+    session:
+      type: us_equities
+      open: "09:30-16:00 America/New_York, Mon-Fri, excluding NYSE holidays"
+      allow_new_entries_outside_session: false
+    liquidity: {max_spread_bp: 5, min_depth_2pct_usd: 1000000, max_basis_pct: 0.5}
+    event_rules: [earnings_pm1d, index_rebalance, FOMC, CPI]

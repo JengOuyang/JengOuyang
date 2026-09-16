@@ -1,0 +1,60 @@
+# TRADE-DESK CI —— 這個專案唯一的第二雙眼睛
+#
+# 為什麼要有：Blacksheep 是單人開發者，沒有 code reviewer。私有庫在 GitHub Free 方案
+# 也沒有分支保護規則（branch protection / rulesets 只對公開庫免費），所以「不能合進 main」
+# 這件事無法在伺服器端強制。CI 做不到「擋下」，但做得到「留下紀錄」：
+# main 上的紅燈是可見的、會寄信的、事後查得到的。
+#
+# 私有庫在 Free 方案每月有 2000 分鐘 Actions 額度；本工作流一次約 1～2 分鐘。
+name: verify
+
+on:
+  push:
+    branches: [main, "fix/**"]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 1 * * 1"      # 每週一 09:00 台北（01:00 UTC）——沒有推送也驗一次，抓環境腐化
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0          # check_secrets --history 需要完整歷史
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: 安裝相依
+        run: pip install -r requirements.txt
+
+      - name: 金鑰掃描（工作區 + 歷史）
+        run: |
+          python scripts/check_secrets.py --all
+          python scripts/check_secrets.py --history
+
+      - name: 產生上下文切片（.context/ 不進版控，CI 要自己生）
+        run: python scripts/build_context.py
+
+      - name: lint（21 項）
+        run: python scripts/lint_agents.py
+
+      - name: 隔離驗證（職責 / 交接 / 權限 / OS 沙箱）
+        run: python scripts/verify_isolation.py
+
+      - name: 文件宣稱與實際一致
+        run: python scripts/verify_docs_claims.py
+
+      - name: 環境健檢（CI 上跳過 claude 冒煙測試）
+        run: python scripts/doctor.py --no-claude || [ $? -eq 2 ]
+
+      - name: 測試
+        run: python -m pytest -q

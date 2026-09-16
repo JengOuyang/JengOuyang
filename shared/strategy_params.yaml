@@ -1,0 +1,166 @@
+# TRADE-DESK 集中參數檔 — 任何修改需 Owner !approve 並登錄 config_versions
+version: "2.0.0"
+mode: DEMO            # DEMO | LIVE
+exchange: bitget
+universe_file: universe.yaml      # 四層商品宇宙定義
+active_tiers: [T1]                 # 目前允許交易的層；升級需 Owner !approve
+timeframes:
+  htf: [1M, 1W, 1D]
+  mtf: [4H]
+  entry: 1H
+
+risk:
+  max_risk_per_trade_pct: 0.015
+  kelly_fraction: 0.5            # 二分之一凱利（Blacksheep 指定）
+  kelly_min_sample: 30
+  kelly_default_p: 0.40
+  min_rr: 2.0
+  min_ev_r: 0.15
+  stop_atr_min: 0.5
+  stop_atr_max: 3.0
+  daily_loss_halt_pct: 0.03
+  weekly_loss_halt_pct: 0.06
+  max_consecutive_losses: 4
+  consecutive_loss_pause_hours: 24
+  max_drawdown_halt_pct: 0.12
+  max_notional_per_symbol_x: 3.0
+  max_notional_total_x: 5.0
+  max_notional_per_group_x: 3.0
+  max_open_positions: 3
+  max_positions_per_group: 2
+  alt_max_risk_per_trade_pct: 0.010
+  alt_funding_block_8h: 0.001
+  max_spread_bp: 3
+  max_leverage: 10
+  margin_mode: isolated
+  margin_target_pct_of_equity: 0.10
+  redteam_disagree_multiplier: 0.5
+  event_window_before_min: 120
+  event_window_after_min: 30
+  live_capital_cap_pct_phase1: 0.20
+
+ratchet:
+  breakeven_at_r: 1.0
+  tp1: {r: 2.0, close_pct: 0.40, move_sl_to_r: 0.5}
+  tp2: {r: 3.0, close_pct: 0.30}
+  tp3: {r: 5.0, close_pct: 0.30}
+  trail_structure_atr_buffer: 0.3
+  trail_chandelier_atr: 3.0
+  check_interval_sec: 300
+  hedge_lock: false
+
+execution:
+  entry_order_type: limit
+  entry_time_in_force: GTC
+  entry_split: 2                 # 區間進場拆兩筆
+  sl_trigger_type: mark_price
+  tp_trigger_type: mark_price
+  sl_existence_timeout_sec: 10
+  reconcile_interval_sec: 300
+  rate_limit_rps: 8
+
+analysis:
+  atr_period: 14
+  swing_fractal: 5
+  fib_retrace_zone: [0.5, 0.786]
+  fib_extension_targets: [1.272, 1.618]
+  volume_profile_days: [30, 90]
+  ob_max_age_bars_4h: 60
+  fvg_min_atr: 0.5
+  # SMC / Price Action 類
+  setup_types: [OB_RETEST, FVG_FILL, FIB_POC_CONFLUENCE, BOS_PULLBACK, LIQUIDITY_SWEEP_CHOCH, RANGE_EDGE_REJECTION,
+                MSS_RETEST,
+                # 型態學類（古典技術分析，與 SMC 並用；必須可程式化辨識 + 量價確認）
+                HS_NECKLINE_BREAK, DOUBLE_TOP_BOTTOM, TRIANGLE_BREAK, FLAG_PENNANT, WEDGE_BREAK, RECTANGLE_BREAK]
+
+  # MSS：CHoCH 只是警訊，MSS 才是已確認的結構轉變（htf_bias 只在 MSS 成立時翻轉）
+  mss:
+    confirm_close_beyond_atr: 0.25      # 需以收盤價站穩被破壞結構點外 ≥ 0.25 ATR
+    require_retest: true                # 需回測不破
+    retest_max_bars: 12                 # 回測必須在 12 根內發生，否則型態失效
+
+  # 型態學參數
+  patterns:
+    enabled: true
+    detector: scripts/patterns.py       # 程式辨識，CHART 不憑視覺印象
+    min_pattern_bars: 15                # 型態成形至少 15 根 K 棒（太短是雜訊）
+    max_pattern_bars: 120
+    neckline_break_atr: 0.3             # 突破頸線／邊界需超出 0.3 ATR 才算有效
+    volume_confirm_ratio: 1.5           # 突破 K 棒量能 ≥ 前 20 根均量 × 1.5，否則視為假突破
+    target_rule: measured_move          # 目標＝型態高度投影，與 Fib / POC 取較近者
+    timeframes: [1D, 4H]                # 型態只在日線與 4H 辨識，1H 只做觸發
+
+backtest:
+  start: "2018-09-01"
+  fee_taker: 0.0006
+  fee_maker: 0.0002
+  slippage_bp: 2
+  stop_fill: next_bar_worst
+  walk_forward: {segments: 6, train_months: 16, test_months: 8}
+  param_perturbation_pct: 0.20
+  monte_carlo_runs: 1000
+  acceptance:
+    sharpe_ratio_vs_current: 0.90
+    maxdd_ratio_vs_current: 1.10
+    min_profit_factor: 1.4
+    min_expectancy_r: 0.25
+    min_trades: 150
+  demo_weeks_before_live: 4
+  demo_expectancy_vs_backtest_min: 0.60
+
+optimization:                        # 見 shared/OPTIMIZATION_CYCLE.md
+  monthly_day: 1                     # L2 月審（AUDIT + RISK；只能改統計量與停用 setup）
+  quarterly_months: [1, 4, 7, 10]    # L3 季審（LAB 主導，完整回測 + 盲審 + 風險簽核 + Owner 核准）
+  quarterly_day: 7
+  disable_setup_if_negative_months: 2        # 連兩月 expectancy < 0 → 月審可停用
+  plateau_perturbation_pct: 0.20             # 參數 ±20% 擾動
+  plateau_min_expectancy_ratio: 0.70         # 擾動後仍需保有 70% expectancy，否則視為曲線擬合
+  early_trigger:
+    drift_expectancy_ratio: 0.50
+    drawdown_pct: 0.08                       # 8% 檢討（12% 才是停機）
+    structural_stop_share_months: 2          # 結構性止損佔比連兩月 > 50%
+    structural_stop_share_pct: 0.50
+  no_midcycle_param_change: true             # 期中不改參數；急到不能等 = 熔斷事件，不是優化事件
+
+drift:
+  window_trades: 30
+  alert_if_live_expectancy_below_backtest_ratio: 0.50
+
+marketing:
+  brand_disclaimer: "本內容僅為市場觀察與教育分享，非投資建議；交易有風險。"
+  post_formats: ["1080x1350"]
+  hashtags_min: 10
+  hashtags_max: 15
+  daily_posts_max: 2
+  require_owner_publish_approval: true
+
+llm_budget:
+  plan: claude_pro
+  warn_at_window_remaining_pct: 20
+  # 額度吃緊時的讓路順序（先延後 P3，再 P2；P0/P1 永不延後）
+  priority:
+    P0_never_defer: [chart, risk, exec, feed, ledger]   # 交易路徑：延後等於錯過行情或無止損
+    P1_protect:     [ceo, audit, watch]                  # 匯報與稽核：延後會讓 Blacksheep 失去掌握
+    P2_defer_first: [redteam, macro, forge]              # 可延後數小時
+    P3_defer_first: [cmo, creative, growth, lab]         # 可延後到隔日
+  defer_agents_when_low: [cmo, creative, growth, lab]
+  # 排程負載規則（scripts/lint_agents.py 檢查項 12）
+  schedule_load:
+    model_weight: {opus: 3.0, sonnet: 1.0, haiku: 0.2}
+    max_5h_window_weight: 6.0      # 保留約 2.0 給變動的 chart-1h（每小時最多 1.0）
+    min_opus_gap_minutes: 300
+  per_agent_hourly_calls:
+    ceo: 4
+    macro: 2
+    chart: 6
+    risk: 6
+    lab: 2
+    redteam: 4
+    audit: 6
+    forge: 3
+    cmo: 1
+    creative: 2
+    growth: 2
+    watch: 1
+
+metrics_version: "2.0"

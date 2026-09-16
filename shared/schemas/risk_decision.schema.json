@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RiskDecision",
+  "type": "object",
+  "required": ["plan_id", "approved", "reasons", "params_version"],
+  "properties": {
+    "plan_id": {"type": "string"},
+    "approved": {"type": "boolean"},
+    "tier": {"enum": ["T1", "T2", "T3", "T4"]},
+    "group": {"enum": ["crypto-majors", "crypto-alts", "metals", "us-equities"]},
+    "risk_pct": {"type": "number", "minimum": 0, "maximum": 0.015},
+    "risk_amount": {"type": "number", "minimum": 0},
+    "qty": {"type": "number", "minimum": 0},
+    "leverage": {"type": "number", "minimum": 1, "maximum": 10},
+    "kelly_p": {"type": "number", "minimum": 0, "maximum": 1},
+    "ev": {"type": "number"},
+    "exposure_after": {"type": "object", "properties": {
+      "symbol_x": {"type": "number"}, "group_x": {"type": "number"},
+      "total_x": {"type": "number"}, "open_positions": {"type": "integer"}}},
+    "session_open": {"type": "boolean"},
+    "spread_bp": {"type": "number"},
+    "reasons": {"type": "array", "items": {"type": "object", "required": ["code"], "properties": {
+      "code": {"enum": ["APPROVED", "COUNTER_TREND", "MACRO_CONFLICT", "STOP_MISSING", "STOP_DISTANCE",
+                        "RR_INSUFFICIENT", "EV_INSUFFICIENT", "EVENT_WINDOW", "SESSION_CLOSED", "LIQUIDITY",
+                        "DATA_SUSPECT", "ADD_LIMIT", "REDTEAM_DISAGREE", "GROUP_EXPOSURE", "ALT_RULES",
+                        "EARNINGS_DAY", "VERSION_GATE", "ACCOUNT_HALT", "SCHEMA_INVALID"]},
+      "rule": {"type": "string", "description": "規則編號，例如 G5"},
+      "detail": {"type": "string", "description": "含數值的說明；只寫入資料倉，不回傳給 CHART"}}}},
+    "params_version": {"type": "string"}
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DiscordMessageEnvelope",
+  "description": "所有 Agent 工作訊息的信封格式（見 shared/PROTOCOL.md）",
+  "type": "object",
+  "required": ["msg_type", "msg_id", "from", "to", "ts", "status", "payload"],
+  "properties": {
+    "msg_type": {"type": "string", "pattern": "^[A-Z][A-Z_]+$"},
+    "msg_id": {"type": "string"},
+    "from": {"enum": ["CEO","MACRO","FEED","LEDGER","CHART","RISK","EXEC","LAB","REDTEAM","AUDIT","WATCH","FORGE","CMO","CREATIVE","GROWTH","ROUTER","OWNER"]},
+    "to": {"type": "array", "items": {"type": "string"}},
+    "task_id": {"type": ["string", "null"]},
+    "ts": {"type": "string", "format": "date-time"},
+    "status": {"enum": ["PROPOSED","ACKED","IN_PROGRESS","DONE","APPROVED","REJECTED","INFO","ERROR"]},
+    "needs_review": {"type": "boolean"},
+    "hop": {"type": "integer", "minimum": 0, "maximum": 6},
+    "artifacts": {"type": "array", "items": {"type": "string"}},
+    "payload": {"type": "object"}
+  }
+}

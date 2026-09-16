@@ -1,0 +1,110 @@
+# 角色上下文切片規則 — build_context.py 依此從 shared/ 生成 agents/<id>/.context/
+# 目的：單一真相（shared/）+ 每個角色只看到自己需要的條款（防認知混淆、省 token）
+# sections 以 Markdown 的 H2 標題「開頭字串」比對；full = 全文；none = 不產生該檔
+schema_version: 1
+
+sources:
+  rules:     shared/RISK_RULES.md
+  protocol:  shared/PROTOCOL.md
+  metrics:   shared/METRICS_SPEC.md
+  data:      shared/DATA_SCHEMA.md
+  marketing: shared/MARKETING_PLAYBOOK.md
+  optimize:  shared/OPTIMIZATION_CYCLE.md
+
+# 所有 Agent 都會拿到的協定核心段落（訊息格式與安全條款）
+protocol_core: ["## 1. 訊息格式", "## 3. 任務生命週期", "## 5. 安全條款", "## 6. 即時性與 Router 行為"]
+
+slices:
+  ceo:
+    rules:     {sections: ["## C.", "## H."], note: "你不做風控判斷。A/G/B/D/E 節由 RISK 與 EXEC 的程式執行；你只需知道帳戶級熔斷（C）與變更流程（H）。"}
+    protocol:  full
+    metrics:   {sections: ["## 2.", "## 3."], note: "匯報引用的數字一律來自 AUDIT，不要自行計算。"}
+    marketing: none
+    optimize:  {sections: ["## 1.", "## 3.", "## 5."], note: "你主持季審流程並把結論送 Blacksheep 核准；不判斷參數本身。"}
+  macro:
+    rules:     {sections: [], note: "你不涉及風控條款。你的事件日曆會被 RISK 的 G7（事件窗口）／G8（時段）／G14（事件日）使用，錯誤會直接造成錯誤放行。"}
+    protocol:  core
+    metrics:   none
+    marketing: none
+    optimize:  {sections: ["## 3."], note: "季審第 2 步的 regime 判定是你的產出。"}
+  feed:
+    rules:     {sections: [], note: "你不涉及風控條款。"}
+    protocol:  core
+    data:      full
+    metrics:   none
+    marketing: none
+    optimize:  none
+  ledger:
+    rules:     {sections: [], note: "你不涉及風控條款。"}
+    protocol:  core
+    data:      full
+    metrics:   none
+    marketing: none
+    optimize:  none
+  chart:
+    rules:     {sections: ["## A."], note: "你只拿到 A 節「提案要件」。G 節的門檻數值、B 節倉位、C 節帳戶熔斷、D/E 節執行與棘輪都不是你的職責，你也看不到——被退件時你只會收到理由『類別』。請據此改善分析品質，而不是調整數字去通過檢查。"}
+    protocol:  core
+    metrics:   {sections: ["## 1.", "## 2."], note: "只用於理解 setup 勝率的定義。"}
+    marketing: none
+    optimize:  {sections: ["## 6."], note: "你不參與參數決策（你是提案者不是評分者）。這裡只讓你知道：期中不會有人改參數，所以不要期待規則會為你放寬。"}
+  risk:
+    rules:     full
+    protocol:  core
+    metrics:   {sections: ["## 2.", "## 3."]}
+    marketing: none
+    optimize:  full
+  exec:
+    rules:     {sections: ["## D.", "## E."], note: "你只執行 D 節（執行層）與 E 節（棘輪）。是否開單由 RISK 決定，你不判斷。"}
+    protocol:  core
+    metrics:   none
+    marketing: none
+    optimize:  none
+  lab:
+    rules:     {sections: ["## A.", "## G.", "## B.", "## C.", "## E."], note: "回測必須忠實重現現行規則（含 G 節門檻）；規則變更提案走 H 節流程。"}
+    protocol:  core
+    metrics:   full
+    marketing: none
+    optimize:  full
+  redteam:
+    rules:     full
+    protocol:  core
+    metrics:   full
+    marketing: none
+    optimize:  full
+  audit:
+    rules:     {sections: ["## A.", "## G.", "## B.", "## E."], note: "解剖交易時需要知道當初的提案要件、Gate 門檻與棘輪階段定義。"}
+    protocol:  core
+    metrics:   full
+    marketing: {sections: ["## 5."], note: "只有行銷量尺定義，供你簽發可公開的績效報表。"}
+    optimize:  full
+  watch:
+    rules:     {sections: ["## C."], note: "只需知道帳戶級狀態，供 Dashboard 顯示。"}
+    protocol:  core
+    metrics:   {sections: ["## 2.", "## 3."]}
+    marketing: none
+    optimize:  {sections: ["## 5."], note: "提前觸發的門檻由你監看並告警。"}
+  forge:
+    rules:     full
+    protocol:  full
+    data:      full
+    metrics:   full
+    marketing: full
+    optimize:  full
+  cmo:
+    rules:     {sections: [], note: "你不涉及交易風控。你的合規底線在 MARKETING_PLAYBOOK 第 6 節。"}
+    protocol:  core
+    metrics:   none
+    marketing: full
+    optimize:  none
+  creative:
+    rules:     {sections: [], note: "你不涉及交易風控。你看不到也不得在內容中出現任何進場價、倉位或未經 AUDIT 簽發的績效。"}
+    protocol:  core
+    metrics:   none
+    marketing: full
+    optimize:  none
+  growth:
+    rules:     {sections: [], note: "你不涉及交易風控，也不接觸交易資料。"}
+    protocol:  core
+    metrics:   none
+    marketing: {sections: ["## 1.", "## 5.", "## 6."]}
+    optimize:  none

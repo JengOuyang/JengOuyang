@@ -1,0 +1,42 @@
+# 金鑰與環境（FORGE 有 Bash(git *)，這裡漏一條就是外洩）
+router/.env
+.env
+.env.*
+!.env.example
+!router/.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials*.json
+token*.json
+
+# 舊專案盤點產物（scan_legacy 會標出含金鑰的檔，清單本身含實際路徑，不該進版控）
+# 但範本必須進版控——否則 clone 下來之後 DAY0 步驟 4 的 Copy-Item 會找不到來源
+legacy/*
+!legacy/projects.yaml.example
+
+# 生成物（由 scripts/build_context.py 產生）
+agents/*/.context/
+
+# 資料與執行狀態
+data/
+logs/
+router/router_state.db
+marketing/queue/
+marketing/longform/
+backtest/reports/
+
+# Agent 交付暫存
+agents/*/outbox/*
+!agents/*/outbox/.gitkeep
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# 系統
+.DS_Store
+Thumbs.db

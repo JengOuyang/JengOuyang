@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ContentDraft",
+  "type": "object",
+  "required": ["content_id", "pillar", "format", "images", "caption", "alt_text", "hashtags", "sources", "disclaimer_ok"],
+  "properties": {
+    "content_id": {"type": "string", "pattern": "^c_[0-9]{8}_[a-z0-9_]+$"},
+    "pillar": {"enum": ["daily-macro", "daily-chart", "weekly-recap", "education", "performance", "reel"]},
+    "format": {"enum": ["single", "carousel", "reel"]},
+    "images": {"type": "array", "minItems": 1, "maxItems": 5, "items": {"type": "string"}},
+    "caption": {"type": "string", "maxLength": 2200},
+    "alt_text": {"type": "string", "maxLength": 300},
+    "hashtags": {"type": "array", "minItems": 10, "maxItems": 15, "items": {"type": "string"}},
+    "sources": {"type": "array", "items": {"type": "string"}},
+    "disclaimer_ok": {"const": true, "description": "文案結尾必須含非投資建議聲明"},
+    "contains_entry_price": {"const": false, "description": "內容不得出現進場價、止損或倉位"},
+    "scheduled_for": {"type": "string", "format": "date-time"}
+  }
+}

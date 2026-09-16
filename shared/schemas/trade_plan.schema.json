@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TradePlan",
+  "type": "object",
+  "required": ["plan_id", "symbol", "direction", "setup_type", "entry", "stop_loss", "take_profit", "invalidation", "rr", "confidence", "htf_alignment", "reasoning", "created_by", "ts"],
+  "properties": {
+    "plan_id": {"type": "string", "pattern": "^tp_[0-9]{8}_[0-9]{4}_[a-z]+_[a-z0-9]+$"},
+    "symbol": {"enum": ["BTCUSDT", "ETHUSDT"]},
+    "direction": {"enum": ["LONG", "SHORT"]},
+    "setup_type": {"enum": ["OB_RETEST", "FVG_FILL", "FIB_POC_CONFLUENCE", "BOS_PULLBACK", "LIQUIDITY_SWEEP_CHOCH", "RANGE_EDGE_REJECTION"]},
+    "entry": {"type": "object", "required": ["type", "price"], "properties": {
+      "type": {"enum": ["LIMIT", "ZONE"]},
+      "price": {"type": "number"},
+      "zone_low": {"type": "number"}, "zone_high": {"type": "number"},
+      "valid_until": {"type": "string", "format": "date-time"}}},
+    "stop_loss": {"type": "object", "required": ["price", "basis"], "properties": {
+      "price": {"type": "number"},
+      "basis": {"type": "string", "description": "e.g. below 1H swing low 61230 + 0.3 ATR"},
+      "atr_multiple": {"type": "number"}}},
+    "take_profit": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["price", "close_pct", "r"], "properties": {
+      "price": {"type": "number"}, "close_pct": {"type": "number"}, "r": {"type": "number"}, "basis": {"type": "string"}}}},
+    "invalidation": {"type": "string"},
+    "rr": {"type": "number", "minimum": 0},
+    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+    "htf_alignment": {"type": "object", "properties": {
+      "1M": {"enum": ["BULL", "BEAR", "RANGE"]}, "1W": {"enum": ["BULL", "BEAR", "RANGE"]},
+      "1D": {"enum": ["BULL", "BEAR", "RANGE"]}, "4H": {"enum": ["BULL", "BEAR", "RANGE"]},
+      "macro_bias": {"enum": ["BULL", "BEAR", "NEUTRAL"]}}},
+    "levels_used": {"type": "array", "items": {"type": "object", "properties": {
+      "kind": {"enum": ["OB", "FVG", "FIB", "POC", "VAH", "VAL", "SUPPORT", "RESISTANCE", "GAP", "LIQUIDITY"]},
+      "tf": {"type": "string"}, "low": {"type": "number"}, "high": {"type": "number"}}}},
+    "reasoning": {"type": "string", "maxLength": 600},
+    "data_quality": {"type": "object", "properties": {"suspect_bars_24h": {"type": "integer"}}},
+    "created_by": {"const": "CHARTIST"},
+    "model": {"type": "string"},
+    "ts": {"type": "string", "format": "date-time"}
+  }
+}

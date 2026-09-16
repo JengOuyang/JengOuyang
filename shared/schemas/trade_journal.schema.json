@@ -1,0 +1,218 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TradeReview",
+  "type": "object",
+  "required": [
+    "trade_id",
+    "plan_id",
+    "symbol",
+    "direction",
+    "setup_type",
+    "plan_vs_actual",
+    "r_gross",
+    "r_net",
+    "mae_r",
+    "mfe_r",
+    "hold_hours",
+    "exit_reason",
+    "what_went_right",
+    "what_went_wrong",
+    "improvements",
+    "needs_followup"
+  ],
+  "properties": {
+    "trade_id": {
+      "type": "string"
+    },
+    "plan_id": {
+      "type": "string"
+    },
+    "symbol": {
+      "enum": [
+        "BTCUSDT",
+        "ETHUSDT"
+      ]
+    },
+    "direction": {
+      "enum": [
+        "LONG",
+        "SHORT"
+      ]
+    },
+    "setup_type": {
+      "type": "string"
+    },
+    "plan_vs_actual": {
+      "type": "object",
+      "properties": {
+        "entry_plan": {
+          "type": "number"
+        },
+        "entry_actual": {
+          "type": "number"
+        },
+        "entry_slippage_bp": {
+          "type": "number"
+        },
+        "sl_plan": {
+          "type": "number"
+        },
+        "sl_final": {
+          "type": "number"
+        },
+        "tp_plan": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "exits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "price": {
+                "type": "number"
+              },
+              "qty_pct": {
+                "type": "number"
+              },
+              "reason": {
+                "type": "string"
+              },
+              "ts": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "r_gross": {
+      "type": "number"
+    },
+    "r_net": {
+      "type": "number"
+    },
+    "mae_r": {
+      "type": "number"
+    },
+    "mfe_r": {
+      "type": "number"
+    },
+    "hold_hours": {
+      "type": "number"
+    },
+    "ratchet_stages_reached": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "R0",
+          "R1",
+          "R2",
+          "R3",
+          "R4",
+          "RH"
+        ]
+      }
+    },
+    "exit_reason": {
+      "enum": [
+        "TP1",
+        "TP2",
+        "TP3",
+        "SL_INITIAL",
+        "SL_BREAKEVEN",
+        "SL_TRAIL",
+        "STRUCTURE_INVALID",
+        "EVENT_HEDGE",
+        "FLATTEN",
+        "HALT",
+        "MANUAL"
+      ]
+    },
+    "stop_reason": {
+      "enum": [
+        "STOP_HUNT_THEN_REVERSAL",
+        "TREND_FAILURE",
+        "WRONG_HTF_BIAS",
+        "EVENT_SHOCK",
+        "EXECUTION_SLIPPAGE",
+        "PREMATURE_ENTRY",
+        "STOP_TOO_TIGHT",
+        "MACRO_CONFLICT",
+        "DATA_ISSUE",
+        "SESSION_LIQUIDITY",
+        "OTHER",
+        "NOT_APPLICABLE"
+      ]
+    },
+    "context_at_entry": {
+      "type": "object",
+      "properties": {
+        "htf_bias": {
+          "type": "string"
+        },
+        "macro_regime": {
+          "type": "string"
+        },
+        "funding": {
+          "type": "number"
+        },
+        "oi_chg_24h": {
+          "type": "number"
+        },
+        "skeptic_verdict": {
+          "type": "string"
+        }
+      }
+    },
+    "what_went_right": {
+      "type": "string"
+    },
+    "what_went_wrong": {
+      "type": "string"
+    },
+    "improvements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "area": {
+            "enum": [
+              "ENTRY_TIMING",
+              "STOP_PLACEMENT",
+              "TP_PLACEMENT",
+              "SIZE",
+              "FILTER",
+              "RATCHET",
+              "DATA",
+              "EXECUTION"
+            ]
+          },
+          "suggestion": {
+            "type": "string"
+          },
+          "testable_hypothesis": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "needs_followup": {
+      "type": "boolean"
+    },
+    "followup_task_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "reviewer_model": {
+      "type": "string"
+    },
+    "metrics_version": {
+      "type": "string"
+    }
+  }
+}

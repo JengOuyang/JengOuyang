@@ -1,0 +1,180 @@
+{
+  "model": "sonnet",
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Bash(pytest *)",
+      "Bash(git *)",
+      "Bash(python ../../scripts/lint_agents.py *)",
+      "Write(outbox/**)",
+      "Write(worktree/**)",
+      "Edit(worktree/**)",
+      "Read(../../engine/**)",
+      "Read(../../router/**)",
+      "Read(../../scripts/**)",
+      "Read(../../db/**)",
+      "Read(../../tests/**)",
+      "Bash(python worktree/*)",
+      "Bash(python ../../scripts/verify_delivery.py *)",
+      "Bash(python ../../scripts/sync_manual_cron.py *)",
+      "Bash(python ../../scripts/sync_manual_msgflow.py *)",
+      "Bash(git worktree *)",
+      "Bash(git diff *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git status*)"
+    ],
+    "deny": [
+      "Bash(rm *)",
+      "Bash(del *)",
+      "Read(../../router/.env)",
+      "Bash(rmdir *)",
+      "Bash(python -c *)",
+      "Bash(cat ../../router/.env)",
+      "Write(../../shared/**)",
+      "Edit(../../shared/**)",
+      "Write(.context/**)",
+      "Edit(.context/**)",
+      "Bash(git push *)",
+      "Bash(git reset *)",
+      "Bash(git add -f *)",
+      "Bash(git checkout main*)",
+      "Read(../../agents/*/USER.md)",
+      "Write(../../engine/**)",
+      "Edit(../../engine/**)",
+      "Write(../../router/**)",
+      "Edit(../../router/**)",
+      "Write(../../scripts/**)",
+      "Edit(../../scripts/**)",
+      "Write(../../db/**)",
+      "Edit(../../db/**)",
+      "Bash(python *)",
+      "Bash(git merge *)"
+    ],
+    "additionalDirectories": [
+      "../.."
+    ]
+  },
+  "_note": "FORGE 只能在自己的 git worktree（agents/forge/worktree/）裡寫程式；合併到 main 只能由 scripts/merge_fix.py 執行，FORGE 無權 merge/push。它可讀全樹（維護一致性需要），但寫入一律隔離在沙箱。",
+  "sandbox": {
+    "enabled": true,
+    "filesystem": {
+      "allowWrite": [
+        "./outbox",
+        "./worktree"
+      ],
+      "denyWrite": [
+        "../../agents/audit",
+        "../../agents/ceo",
+        "../../agents/chart",
+        "../../agents/cmo",
+        "../../agents/creative",
+        "../../agents/exec",
+        "../../agents/feed",
+        "../../agents/growth",
+        "../../agents/lab",
+        "../../agents/ledger",
+        "../../agents/macro",
+        "../../agents/redteam",
+        "../../agents/risk",
+        "../../agents/watch",
+        "../../backtest",
+        "../../dashboard",
+        "../../data",
+        "../../db",
+        "../../dev",
+        "../../docs",
+        "../../engine",
+        "../../legacy",
+        "../../logs",
+        "../../marketing",
+        "../../router",
+        "../../scripts",
+        "../../shared",
+        "../../skills",
+        "../../tests",
+        "./.context",
+        "./CLAUDE.md",
+        "./MANUAL.md",
+        "./PERSONA.md",
+        "./USER.md"
+      ],
+      "denyRead": [
+        "../../agents/audit/USER.md",
+        "../../agents/ceo/USER.md",
+        "../../agents/chart/USER.md",
+        "../../agents/cmo/USER.md",
+        "../../agents/creative/USER.md",
+        "../../agents/exec/USER.md",
+        "../../agents/feed/USER.md",
+        "../../agents/growth/USER.md",
+        "../../agents/lab/USER.md",
+        "../../agents/ledger/USER.md",
+        "../../agents/macro/USER.md",
+        "../../agents/redteam/USER.md",
+        "../../agents/risk/USER.md",
+        "../../agents/watch/USER.md",
+        "../../router/.env"
+      ]
+    },
+    "network": {
+      "allowedDomains": []
+    },
+    "credentials": {
+      "files": [
+        {
+          "path": "~/.ssh",
+          "mode": "deny"
+        },
+        {
+          "path": "~/.aws/credentials",
+          "mode": "deny"
+        },
+        {
+          "path": "~/.config/gcloud",
+          "mode": "deny"
+        },
+        {
+          "path": "~/.docker/config.json",
+          "mode": "deny"
+        },
+        {
+          "path": "../../router/.env",
+          "mode": "deny"
+        }
+      ],
+      "envVars": [
+        {
+          "name": "BITGET_API_KEY",
+          "mode": "deny"
+        },
+        {
+          "name": "BITGET_API_SECRET",
+          "mode": "deny"
+        },
+        {
+          "name": "BITGET_PASSPHRASE",
+          "mode": "deny"
+        },
+        {
+          "name": "DISCORD_TOKEN",
+          "mode": "deny"
+        },
+        {
+          "name": "NOTION_TOKEN",
+          "mode": "deny"
+        },
+        {
+          "name": "GITHUB_TOKEN",
+          "mode": "deny"
+        },
+        {
+          "name": "ANTHROPIC_API_KEY",
+          "mode": "deny"
+        }
+      ]
+    }
+  }
+}

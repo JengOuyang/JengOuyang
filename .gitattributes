@@ -1,0 +1,18 @@
+# Windows 的 CRLF 會讓 diff 變成整檔改動，看不出「這次到底改了什麼」——
+# 而 diff 看得懂正是用 git 的全部意義。一律用 LF 存進版本庫。
+* text=auto eol=lf
+
+# 這兩種一定要 LF：git 鉤子是 sh 腳本（CRLF 會讓 Git Bash 報 bad interpreter），
+# .cmd 則相反，Windows 的批次檔要 CRLF 才穩。
+*.sh   text eol=lf
+*.py   text eol=lf
+*.cmd  text eol=crlf
+*.bat  text eol=crlf
+*.ps1  text eol=crlf
+
+# 二進位：不要做任何換行轉換
+*.png binary
+*.jpg binary
+*.pdf binary
+*.db  binary
+*.zip binary

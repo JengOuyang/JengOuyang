@@ -1,0 +1,196 @@
+{
+  "model": "sonnet",
+  "permissions": {
+    "allow": [
+      "Read",
+      "Bash(python ../../backtest/*)",
+      "Bash(git *)",
+      "Bash(python ../../scripts/query_readonly.py *)",
+      "Write(../../backtest/**)",
+      "Edit(../../backtest/**)",
+      "Write(outbox/**)"
+    ],
+    "deny": [
+      "Bash(rm *)",
+      "Bash(del *)",
+      "Read(../../router/.env)",
+      "Read(../../data/**)",
+      "Read(../../agents/*/PERSONA.md)",
+      "Read(../../agents/*/MANUAL.md)",
+      "Read(../../agents/*/.context/**)",
+      "Write(../../shared/**)",
+      "Edit(../../shared/**)",
+      "Bash(rmdir *)",
+      "Bash(python -c *)",
+      "Bash(cat ../../router/.env)",
+      "Write(.context/**)",
+      "Edit(.context/**)",
+      "Bash(git push *)",
+      "Bash(git reset *)"
+    ],
+    "additionalDirectories": [
+      "../.."
+    ]
+  },
+  "_note": "model 使用別名（haiku/sonnet/opus），與 router/agents.yaml 一致；Router 呼叫時會以 --model 覆寫。deny 的基線由 scripts/lint_agents.py 第 14 項強制。",
+  "sandbox": {
+    "enabled": true,
+    "filesystem": {
+      "allowWrite": [
+        "../../backtest",
+        "./outbox"
+      ],
+      "denyWrite": [
+        "../../agents/audit",
+        "../../agents/ceo",
+        "../../agents/chart",
+        "../../agents/cmo",
+        "../../agents/creative",
+        "../../agents/exec",
+        "../../agents/feed",
+        "../../agents/forge",
+        "../../agents/growth",
+        "../../agents/ledger",
+        "../../agents/macro",
+        "../../agents/redteam",
+        "../../agents/risk",
+        "../../agents/watch",
+        "../../dashboard",
+        "../../data",
+        "../../db",
+        "../../dev",
+        "../../docs",
+        "../../engine",
+        "../../legacy",
+        "../../logs",
+        "../../marketing",
+        "../../router",
+        "../../scripts",
+        "../../shared",
+        "../../skills",
+        "../../tests",
+        "./.context",
+        "./CLAUDE.md",
+        "./MANUAL.md",
+        "./PERSONA.md",
+        "./USER.md"
+      ],
+      "denyRead": [
+        "../../agents/audit/.context",
+        "../../agents/audit/MANUAL.md",
+        "../../agents/audit/PERSONA.md",
+        "../../agents/audit/USER.md",
+        "../../agents/ceo/.context",
+        "../../agents/ceo/MANUAL.md",
+        "../../agents/ceo/PERSONA.md",
+        "../../agents/ceo/USER.md",
+        "../../agents/chart/.context",
+        "../../agents/chart/MANUAL.md",
+        "../../agents/chart/PERSONA.md",
+        "../../agents/chart/USER.md",
+        "../../agents/cmo/.context",
+        "../../agents/cmo/MANUAL.md",
+        "../../agents/cmo/PERSONA.md",
+        "../../agents/cmo/USER.md",
+        "../../agents/creative/.context",
+        "../../agents/creative/MANUAL.md",
+        "../../agents/creative/PERSONA.md",
+        "../../agents/creative/USER.md",
+        "../../agents/exec/.context",
+        "../../agents/exec/MANUAL.md",
+        "../../agents/exec/PERSONA.md",
+        "../../agents/exec/USER.md",
+        "../../agents/feed/.context",
+        "../../agents/feed/MANUAL.md",
+        "../../agents/feed/PERSONA.md",
+        "../../agents/feed/USER.md",
+        "../../agents/forge/.context",
+        "../../agents/forge/MANUAL.md",
+        "../../agents/forge/PERSONA.md",
+        "../../agents/forge/USER.md",
+        "../../agents/growth/.context",
+        "../../agents/growth/MANUAL.md",
+        "../../agents/growth/PERSONA.md",
+        "../../agents/growth/USER.md",
+        "../../agents/ledger/.context",
+        "../../agents/ledger/MANUAL.md",
+        "../../agents/ledger/PERSONA.md",
+        "../../agents/ledger/USER.md",
+        "../../agents/macro/.context",
+        "../../agents/macro/MANUAL.md",
+        "../../agents/macro/PERSONA.md",
+        "../../agents/macro/USER.md",
+        "../../agents/redteam/.context",
+        "../../agents/redteam/MANUAL.md",
+        "../../agents/redteam/PERSONA.md",
+        "../../agents/redteam/USER.md",
+        "../../agents/risk/.context",
+        "../../agents/risk/MANUAL.md",
+        "../../agents/risk/PERSONA.md",
+        "../../agents/risk/USER.md",
+        "../../agents/watch/.context",
+        "../../agents/watch/MANUAL.md",
+        "../../agents/watch/PERSONA.md",
+        "../../agents/watch/USER.md",
+        "../../router/.env"
+      ]
+    },
+    "network": {
+      "allowedDomains": []
+    },
+    "credentials": {
+      "files": [
+        {
+          "path": "~/.ssh",
+          "mode": "deny"
+        },
+        {
+          "path": "~/.aws/credentials",
+          "mode": "deny"
+        },
+        {
+          "path": "~/.config/gcloud",
+          "mode": "deny"
+        },
+        {
+          "path": "~/.docker/config.json",
+          "mode": "deny"
+        },
+        {
+          "path": "../../router/.env",
+          "mode": "deny"
+        }
+      ],
+      "envVars": [
+        {
+          "name": "BITGET_API_KEY",
+          "mode": "deny"
+        },
+        {
+          "name": "BITGET_API_SECRET",
+          "mode": "deny"
+        },
+        {
+          "name": "BITGET_PASSPHRASE",
+          "mode": "deny"
+        },
+        {
+          "name": "DISCORD_TOKEN",
+          "mode": "deny"
+        },
+        {
+          "name": "NOTION_TOKEN",
+          "mode": "deny"
+        },
+        {
+          "name": "GITHUB_TOKEN",
+          "mode": "deny"
+        },
+        {
+          "name": "ANTHROPIC_API_KEY",
+          "mode": "deny"
+        }
+      ]
+    }
+  }
+}

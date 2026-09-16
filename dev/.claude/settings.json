@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "additionalDirectories": [".."],
+    "deny": [
+      "Read(../router/.env)",
+      "Bash(python ../router/discord_router.py)"
+    ]
+  },
+  "_note": "開發者助理：可讀寫整個 repo，但看不到金鑰，也不能從這裡啟動第二個 Router"
+}

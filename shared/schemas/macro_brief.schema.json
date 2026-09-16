@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MacroBrief",
+  "type": "object",
+  "required": ["date", "regime", "bias", "confidence", "drivers", "changes_vs_yesterday", "event_calendar", "sources"],
+  "properties": {
+    "date": {"type": "string", "format": "date"},
+    "regime": {"enum": ["RISK_ON", "RISK_OFF", "NEUTRAL", "EVENT_RISK"]},
+    "bias": {"enum": ["BULL", "BEAR", "NEUTRAL"]},
+    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+    "drivers": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "changes_vs_yesterday": {"type": "string"},
+    "asset_notes": {"type": "object", "properties": {
+      "crypto": {"type": "string"}, "metals": {"type": "string"}, "us_equities": {"type": "string"}}},
+    "event_calendar": {"type": "array", "items": {"type": "object",
+      "required": ["event", "ts_utc", "impact"], "properties": {
+        "event": {"type": "string"}, "ts_utc": {"type": "string"}, "ts_taipei": {"type": "string"},
+        "impact": {"enum": ["HIGH", "MED", "LOW"]},
+        "affects": {"type": "array", "items": {"enum": ["T1", "T2", "T3", "T4"]}}}}},
+    "crypto_flows": {"type": "object", "properties": {
+      "etf_net_usd": {"type": ["number", "null"]}, "stablecoin_mcap_chg_pct": {"type": ["number", "null"]}}},
+    "data_gaps": {"type": "array", "items": {"type": "string"}},
+    "sources": {"type": "array", "minItems": 1, "items": {"type": "object",
+      "required": ["title", "url"], "properties": {"title": {"type": "string"}, "url": {"type": "string", "format": "uri"}}}}
+  }
+}
