@@ -310,7 +310,7 @@ Router 會先跑 **preflight**（驗證 15 個 `.context/` 與 `shared/` 一致�
 
 ### 10.5 迴圈與額度保護
 - 每則訊息帶 `hop`，≥ 6 停止並 @CEO。
-- 每 Agent 每小時 LLM 呼叫上限（`strategy_params.yaml: llm_budget`）；超過 → ⏳ 延後 15 分鐘並在 `#agent-health` 說明。
+- 每 Agent 每小時 LLM 呼叫上限（`strategy_params.yaml: llm_budget`）；超過 → ⏳ 延後 `budget_defer_minutes`（`router/agents.yaml`，目前 5 分鐘）並在 `#agent-health` 說明。
 - 同時最多 3 個 `claude -p`。
 
 ---

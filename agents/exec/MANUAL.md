@@ -9,8 +9,8 @@
 6. （LLM）回答 CEO/AUDIT 對某筆執行細節的提問（滑價、延遲、為何拆單）。
 
 ## 觸發方式
-- [CRON:exec-ratchet] 每 5 分（程式）
-- [CRON:exec-reconcile] 每 5 分（程式）
+- [CRON:exec-ratchet] 每 5 分（程式；precheck：stub_precheck.py 說 SKIP 就不觸發）
+- [CRON:exec-reconcile] 每 5 分（程式；precheck：stub_precheck.py 說 SKIP 就不觸發）
 - 常駐服務
 - 事件驅動（RISK_DECISION）
 

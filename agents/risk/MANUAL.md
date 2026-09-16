@@ -11,7 +11,7 @@
 6. （LLM）審 FORGE 對 risk_gate.py 的 FIX_PROPOSAL：規則語意是否改變。
 
 ## 觸發方式
-- [CRON:risk-account-check] 每 5 分（程式）
+- [CRON:risk-account-check] 每 5 分（程式；precheck：stub_precheck.py 說 SKIP 就不觸發）
 - [CRON:risk-weekly] 週六 20:00
 - [CRON:risk-quarterly-signoff] 每年 1、4、7、10 月的 8 日 16:00
 - 事件驅動：TRADE_PLAN（程式監聽 #analysis）

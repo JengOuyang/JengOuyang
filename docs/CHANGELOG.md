@@ -28,6 +28,13 @@
      於是 Blacksheep 的 `!status` 與決策回覆**沒有 👀、日誌也沒有任何紀錄**，一天內發生兩次。
      現在也接受**這隻 Bot 自己的**受管身分組（`guild.self_role`），仍必須寫在內容裡；
      其他身分組（含別的 Agent 的）一律不算。三條新測試。
+198. **佔位程式期間，每 5 分鐘的 RISK/EXEC 排程一天開約 860 個空 thread。** `engine/` 仍是 NOT_IMPLEMENTED stub，
+     三個排程（帳戶檢查、棘輪、對帳）卻每次都發訊息、開 thread、貼「（無輸出）」。新增 `scripts/stub_precheck.py`
+     當 precheck（排程規則 R8）：**只有** mode=DEMO、目標檔首行標記為 stub、檔案 ≤ 80 行、子命令不在 `IMPLEMENTED`
+     時才 SKIP；任何疑慮（LIVE、讀不到、解析失敗、像是真實作）一律照常執行。真正的實作換掉檔頭後自動恢復。
+     心跳紀錄為 `SKIPPED`，不算靜默失敗。不修改 `engine/`。
+199. **額度上限的延後時間寫死 15 分鐘。** 改為 `router/agents.yaml: budget_defer_minutes`，設為 5。
+     CEO 每小時上限（`strategy_params.yaml`，Owner 核准參數）**未修改**，提案見 `dev/TASKS.md` PROPOSAL-20260916-01。
 
 **v3.0.21**（Router 因為一份 markdown 的數字過期而開不了機）：
 189. **測試數在不同機器上會數出不同的值。** `verify_docs_claims` 用

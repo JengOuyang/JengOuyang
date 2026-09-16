@@ -124,6 +124,8 @@ if "alerted" not in {r[1] for r in STATE.execute("PRAGMA table_info(chains)")}:
 # v3.0.12 的實測是「傳遞已達 28 跳上限」洗版——因為排程訊息由 TD-ROUTER（一個 Bot）發出，
 # 每一次排程都被當成「Agent 又傳了一跳」，第 7 次排程之後那個頻道就再也做不了任何事。
 CHAIN_IDLE_RESET = CFG.get("chain_idle_reset_minutes", 30) * 60
+# 每小時 LLM 呼叫達上限時，這則訊息延後多久再處理（原本寫死 15 分鐘）
+BUDGET_DEFER = CFG.get("budget_defer_minutes", 15) * 60
 
 
 def chain_state(thread_id: str) -> tuple[int, int, int]:
@@ -467,8 +469,8 @@ async def handle(aid: str, msg: discord.Message, cron_job: str | None = None, mo
     will_llm = a["kind"] == "llm" and not a.get("scripts", {}).get(cron_job or "on_mention")
     if will_llm and calls_last_hour(aid) >= limit:
         await react(msg, "⏳", remove="👀", aid=aid)
-        await bot.get_channel(int(os.environ["CH_AGENT_HEALTH"])).send(f"⏳ {a['name']} 本小時 LLM 呼叫已達 {limit} 次，訊息 {msg.jump_url} 延後 15 分鐘。")
-        await asyncio.sleep(900)
+        await bot.get_channel(int(os.environ["CH_AGENT_HEALTH"])).send(f"⏳ {a['name']} 本小時 LLM 呼叫已達 {limit} 次，訊息 {msg.jump_url} 延後 {BUDGET_DEFER // 60} 分鐘。")
+        await asyncio.sleep(BUDGET_DEFER)
     async with sem_global:
         await react(msg, "⚙️", remove="👀", aid=aid)
         hb(aid, cron_job or f"msg:{msg.id}", "RUNNING")

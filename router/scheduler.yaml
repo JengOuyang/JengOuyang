@@ -11,6 +11,8 @@ timezone: Asia/Taipei
 #      注意：任何「幾號」都可能是任何星期幾，lint 第 12 項是用「每日＋該星期＋該號」的最壞情況檢查
 #   R5 交易路徑（chart-1h → risk → exec）永遠不讓路；擠不下時延後的是 cmo / growth / lab
 #   R6 互斥任務（mutex_with）：precheck 決定跑主任務或備援，額度只計一次
+#   R8 engine/ 仍是 NOT_IMPLEMENTED stub 時（且 mode=DEMO），每 5 分鐘的 risk/exec 由 stub_precheck.py SKIP，
+#      免得一天開 ~860 個空 thread；真正的實作換掉檔頭後自動恢復執行
 #   R7 主任務與其互斥備援「雙雙 SKIP」＝當天沒有該產出，Router 必須在 #alerts @Blacksheep
 #      （靜默的 SKIP 會造成整天沒有 HTF_CONTEXT 而沒有人發現）
 # scripts/lint_agents.py 會檢查 R1 與 R2，改排程後請重跑。
@@ -23,9 +25,9 @@ jobs:
   - {name: ledger-anchor, label: "錨點",       cron: "5 0 * * *",    agent: ledger, channel_env: CH_AUDIT_LOG,   instruction: "Merkle 錨點"}
   - {name: ledger-crosscheck, label: "交叉驗證",   cron: "10 0 * * *",   agent: ledger, channel_env: CH_AUDIT_LOG,   instruction: "交叉驗證"}
   - {name: ledger-backup, label: "備份",       cron: "20 0 * * *",   agent: ledger, channel_env: CH_AUDIT_LOG,   instruction: "備份"}
-  - {name: risk-account-check, label: "帳戶檢查",  cron: "*/5 * * * *",  agent: risk,   channel_env: CH_RISK,        instruction: "帳戶級檢查", program: true}
-  - {name: exec-ratchet, label: "棘輪",       cron: "*/5 * * * *",  agent: exec,   channel_env: CH_EXECUTION,   instruction: "棘輪推進（RISK_RULES E 節 R0–R4）", program: true}
-  - {name: exec-reconcile, label: "對帳",     cron: "*/5 * * * *",  agent: exec,   channel_env: CH_EXECUTION,   instruction: "與交易所對帳（C7 的觸發來源）", program: true}
+  - {name: risk-account-check, label: "帳戶檢查",  cron: "*/5 * * * *",  agent: risk,   channel_env: CH_RISK,        instruction: "帳戶級檢查", program: true, precheck: "python scripts/stub_precheck.py engine/risk_gate.py --account-check"}
+  - {name: exec-ratchet, label: "棘輪",       cron: "*/5 * * * *",  agent: exec,   channel_env: CH_EXECUTION,   instruction: "棘輪推進（RISK_RULES E 節 R0–R4）", program: true, precheck: "python scripts/stub_precheck.py engine/executor.py ratchet"}
+  - {name: exec-reconcile, label: "對帳",     cron: "*/5 * * * *",  agent: exec,   channel_env: CH_EXECUTION,   instruction: "與交易所對帳（C7 的觸發來源）", program: true, precheck: "python scripts/stub_precheck.py engine/executor.py reconcile"}
   - {name: watch-heartbeat, label: "心跳",     cron: "*/15 * * * *", agent: watch,  channel_env: CH_AGENT_HEALTH, instruction: "心跳檢查", program: true}
   - {name: watch-usage, label: "用量",         cron: "0 * * * *",    agent: watch,  channel_env: CH_AGENT_HEALTH, instruction: "用量檢查", program: true}
   - {name: growth-fetch, label: "IG數據",        cron: "0 21 * * *",   agent: growth, channel_env: CH_GROWTH,      instruction: "抓 IG Insights", program: true}

@@ -6,6 +6,7 @@ global_parallel: 3          # 同時最多 3 個 claude -p（配合 Pro 額度�
 max_hops: 6                 # 一條訊息鏈最多傳遞幾跳（由 Router 記帳，不看 LLM 自報）
 max_a2a_turns: 5            # 同一 thread 內 Agent 之間最多來回幾輪，超過就升級給 Blacksheep
 chain_idle_reset_minutes: 30  # 一條鏈閒置這麼久就算結束，跳數歸零（否則頻道的計數器會永遠累加）
+budget_defer_minutes: 5       # 每小時 LLM 呼叫達上限（strategy_params.llm_budget.per_agent_hourly_calls）時延後多久
 bug_report_dedup_minutes: 360 # 同一個 Agent × 觸發 × 症狀，這段時間內只自動報修 FORGE 一次（否則排程每 15 分鐘失敗就叫醒 FORGE 一次）
 
 discord:
