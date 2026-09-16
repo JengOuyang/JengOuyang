@@ -15,17 +15,17 @@
 
 | 能力 | 候選（專案：檔數／最大檔行數） | 建議來源 | 你的決定 |
 |---|---|---|---|
-| backtest-walkforward | `BS_Crypto`：72 檔／19534 行（high）；`Crypto_Analysis_Agent`：35 檔／19534 行（medium） | `BS_Crypto` | REF |
-| data-integrity | `BS_Crypto`：91 檔／44792 行（high）；`Crypto_Analysis_Agent`：9 檔／904 行（medium） | `BS_Crypto` | REF |
-| exchange-order-placement | `BS_Crypto`：14 檔／13284 行（high） | `BS_Crypto` | REF |
-| exchange-position-guard | `BS_Crypto`：96 檔／14702 行（high）；`Crypto_Analysis_Agent`：63 檔／2572 行（medium） | `BS_Crypto` | REF |
-| exchange-reconciliation | `BS_Crypto`：25 檔／13284 行（high） | `BS_Crypto` | REF |
-| macro-briefing | `BS_Crypto`：42 檔／9926 行（high） | `BS_Crypto` | REF |
-| market-data-collection | `BS_Crypto`：154 檔／13284 行（high）；`Crypto_Analysis_Agent`：47 檔／3660 行（medium） | `BS_Crypto` | REF |
-| pattern-analysis | `BS_Crypto`：133 檔／13284 行（high）；`Crypto_Analysis_Agent`：10 檔／3660 行（medium） | `BS_Crypto` | REF |
-| ratchet-management | `BS_Crypto`：26 檔／32856 行（high） | `BS_Crypto` | REF |
-| smc-analysis | `BS_Crypto`：836 檔／13284 行（high）；`Crypto_Analysis_Agent`：75 檔／3660 行（medium） | `BS_Crypto` | REF |
-| war-room-dashboard | `BS_Crypto`：32 檔／13284 行（high）；`Crypto_Analysis_Agent`：2 檔／346 行（medium） | `BS_Crypto` | REF |
+| backtest-walkforward | `BS_Crypto`：72 檔／19534 行（high）；`Crypto_Analysis_Agent`：35 檔／19534 行（medium） | `BS_Crypto` | BS_Crypto |
+| data-integrity | `BS_Crypto`：91 檔／44792 行（high）；`Crypto_Analysis_Agent`：9 檔／904 行（medium） | `BS_Crypto` | BS_Crypto |
+| exchange-order-placement | `BS_Crypto`：14 檔／13284 行（high） | `BS_Crypto` | BS_Crypto |
+| exchange-position-guard | `BS_Crypto`：96 檔／14702 行（high）；`Crypto_Analysis_Agent`：63 檔／2572 行（medium） | `BS_Crypto` | BS_Crypto |
+| exchange-reconciliation | `BS_Crypto`：25 檔／13284 行（high） | `BS_Crypto` | BS_Crypto |
+| macro-briefing | `BS_Crypto`：42 檔／9926 行（high） | `BS_Crypto` | BS_Crypto |
+| market-data-collection | `BS_Crypto`：154 檔／13284 行（high）；`Crypto_Analysis_Agent`：47 檔／3660 行（medium） | `BS_Crypto` | BS_Crypto |
+| pattern-analysis | `BS_Crypto`：133 檔／13284 行（high）；`Crypto_Analysis_Agent`：10 檔／3660 行（medium） | `BS_Crypto` | BS_Crypto |
+| ratchet-management | `BS_Crypto`：26 檔／32856 行（high） | `BS_Crypto` | BS_Crypto |
+| smc-analysis | `BS_Crypto`：836 檔／13284 行（high）；`Crypto_Analysis_Agent`：75 檔／3660 行（medium） | `BS_Crypto` | BS_Crypto |
+| war-room-dashboard | `BS_Crypto`：32 檔／13284 行（high）；`Crypto_Analysis_Agent`：2 檔／346 行（medium） | `BS_Crypto` | BS_Crypto |
 
 ## 給 CEO 的派工規則
 
