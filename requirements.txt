@@ -13,6 +13,11 @@ jsonschema>=4.21         # shared/schemas/*.json 的訊息契約驗證
 pandas>=2.2              # K 線與回測的資料處理
 numpy>=1.26
 
+# ── 行銷圖片（scripts/render_chart.py，Phase 7）──
+Pillow>=10.0             # 教育貼文等文字版型
+matplotlib>=3.8          # 盤面圖底層
+mplfinance>=0.12.10b0    # K 線圖
+
 # ── 工具 ──
 Markdown>=3.5            # scripts/build_site.py 產生文件站台
 pytest>=8.0              # 回歸測試

@@ -302,6 +302,10 @@ async def run_claude(aid: str, prompt: str, thread_id: str, model_override: str 
 
 async def run_script(aid: str, cmd: str, extra_env: dict) -> str:
     env = {**os.environ, "TD_AGENT": aid, "TD_ROOT": str(ROOT), "TD_DB": str(ROOT / "data" / "tradedesk.db"), **extra_env}
+    # agents.yaml 的指令寫的是裸 `python`。Router 由 start.ps1 以 venv 的 python 啟動但沒有 activate，
+    # shell 會解析到系統 python（沒有 yaml 等套件）→ heartbeat_check 等腳本 ModuleNotFoundError。
+    # 把 Router 自己這支 python 的目錄排到 PATH 最前面，子程序就跟 Router 用同一個環境。
+    env["PATH"] = str(Path(sys.executable).parent) + os.pathsep + env.get("PATH", "")
     proc = await asyncio.create_subprocess_shell(cmd, cwd=ROOT, env=env, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
     out, err = await asyncio.wait_for(proc.communicate(), timeout=600)
     if proc.returncode == 3:                      # 約定：exit 3 = 「這則訊息不是我的程式該處理的，交給 LLM」
