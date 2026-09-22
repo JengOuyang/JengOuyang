@@ -21,6 +21,7 @@ agents/*/.context/
 
 # 資料與執行狀態
 data/
+!data/calendar/events.json
 logs/
 router/router_state.db
 marketing/queue/
