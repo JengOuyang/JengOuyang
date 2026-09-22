@@ -41,6 +41,19 @@
      當日多次撞上限導致 Owner 回覆延後。風險：CEO 屬 P1 不讓路，會先擠壓 P2/P3 的額度。
      `scripts/apply_change.py` 尚未實作，由 dev session 手動代行；**`config_versions` 待補登**
      （該表只能經 ingest 寫入口寫入，待 Phase 6 完成後補一列 version=2.0.1、change_id=CHG-2026-0916-001）。
+201. **FORGE 的五條 python 白名單從第一天起就是失效的（CHG-2026-0922-002）。** 它的 deny 有
+     `Bash(python *)`，而 deny 優先於 allow——`lint_agents.py`、`verify_delivery.py`、`sync_manual_cron.py`、
+     `sync_manual_msgflow.py`、`python worktree/*` 全部被自己的 deny 蓋掉；`Bash(pytest *)` 沒指定路徑，
+     走系統 PATH 找到缺套件的系統 Python。症狀是 FORGE 連續三次交付 `tests_run:[]`。
+     15 個 Agent 只有 FORGE 有這條 blanket deny。修法（D 方案，Owner 核准、dev 代為套用，無 Agent 可寫 `.claude/`）：
+     保留 blanket deny，四條腳本與 pytest 改用 venv 的**相對路徑**（絕對路徑踩過 v3.0.20 的坑），
+     並**移除** `Bash(python worktree/*)`——那等同任意程式執行。
+     誠實說明：依白皮書 §7.2，`pytest *` 仍可執行 FORGE 自己寫的測試檔，原生 Windows 沒有 L0 沙箱，
+     這是減速丘不是牆；交付驗證仍由審核者自己跑 `verify_delivery.py`（憲法八）。
+     **未採納**的一項：CEO 另建議把 `./.claude` 手動加進 forge 的 sandbox `denyWrite`——
+     該區塊由 `sync_sandbox.py` 從 OWNERSHIP 生成、lint 第 21 項驗證，手改會直接讓 Router 開不了機
+     （已實測：`sync_sandbox --verify` 報「沙箱設定過期」）。正確做法是改 `SELF_PROTECTED` 並重新生成 15 份，
+     屬 FORGE 的 worktree 交付，已回報 CEO 立項。
 
 **v3.0.21**（Router 因為一份 markdown 的數字過期而開不了機）：
 189. **測試數在不同機器上會數出不同的值。** `verify_docs_claims` 用
