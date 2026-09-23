@@ -12,6 +12,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import td_console  # noqa: F401  （Windows cp950 主控台會讓 print 中文/符號崩潰）
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
