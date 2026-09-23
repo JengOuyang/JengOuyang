@@ -41,3 +41,7 @@ __pycache__/
 # 蝟餌絞
 .DS_Store
 Thumbs.db
+
+# Claude Code 本地設定
+.claude/
+agents/forge/worktree/
