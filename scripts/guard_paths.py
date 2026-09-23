@@ -61,8 +61,11 @@ def collect() -> dict[str, str]:
 
 def snapshot() -> int:
     files = collect()
+    r = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True,
+                       text=True, encoding="utf-8", errors="replace")
+    git_head = r.stdout.strip() if r.returncode == 0 else ""
     STATE.parent.mkdir(parents=True, exist_ok=True)
-    STATE.write_text(json.dumps({"files": files}, ensure_ascii=False, indent=2), encoding="utf-8")
+    STATE.write_text(json.dumps({"git_head": git_head, "files": files}, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"guard_paths：已建立基準，{len(files)} 個受保護檔案")
     return 0
 
@@ -80,7 +83,10 @@ def allowed_for(agent: str) -> list[str]:
 def verify(agent: str | None, restore: bool) -> int:
     if not STATE.exists():
         print("guard_paths：沒有基準，先跑 snapshot"); return 2
-    base = json.loads(STATE.read_text(encoding="utf-8"))["files"]
+    state_data = json.loads(STATE.read_text(encoding="utf-8"))
+    base = state_data["files"]
+    # 向下相容：舊格式沒有 git_head，fallback 到 "--"（還原工作目錄到 HEAD）
+    baseline_ref = state_data.get("git_head") or "--"
     now = collect()
     ok_prefixes = allowed_for(agent) if agent else []
 
@@ -104,11 +110,21 @@ def verify(agent: str | None, restore: bool) -> int:
     print(f"\n⚠️ {len(unauthorized)} 個未授權變更"
           + ("（依 OWNERSHIP.yaml，這個 Agent 無權改它們）" if agent else ""))
     if restore:
+        # 使用基準 commit 的 ref 還原；若 baseline_ref="--" 退回舊行為（還原到 HEAD）
+        ref_cmd = [baseline_ref] if baseline_ref != "--" else ["--"]
+        all_ok = True
         for f in sorted(unauthorized):
-            r = subprocess.run(["git", "checkout", "--", f], cwd=ROOT, capture_output=True,
-                               text=True, encoding="utf-8", errors="replace", env=child_env())
-            print(("  已還原 " if r.returncode == 0 else "  還原失敗 ") + f
-                  + ("" if r.returncode == 0 else f"：{r.stderr.strip()[:80]}"))
+            r = subprocess.run(["git", "checkout"] + ref_cmd + [f], cwd=ROOT,
+                               capture_output=True, text=True, encoding="utf-8",
+                               errors="replace", env=child_env())
+            # 以 hash 驗證還原是否真的生效，而非只看 returncode
+            restored_ok = r.returncode == 0 and (ROOT / f).is_file() and sha(ROOT / f) == base.get(f)
+            print(("  已還原 " if restored_ok else "  還原失敗 ") + f
+                  + ("" if restored_ok else f"（baseline={baseline_ref[:12]}）：{r.stderr.strip()[:80]}"))
+            if not restored_ok:
+                all_ok = False
+        if all_ok:
+            snapshot()                  # 全部還原成功 → 更新基準，中斷連鎖誤報
         print("  → 請同時把 system_state.trading 設為 HALT 並在 #alerts @Blacksheep")
     else:
         print("  → 加 --restore 可自動 git 還原")
