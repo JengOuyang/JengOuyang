@@ -100,18 +100,21 @@ def _get_prev_hash(con: sqlite3.Connection, table: str) -> str:
 
 def ingest(table: str, payload: dict, writer: str) -> tuple[int, str]:
     """寫入一列並回傳 (row_id, row_hash)。"""
-    con = sqlite3.connect(str(DB))
+    con = sqlite3.connect(str(DB), isolation_level=None)  # autocommit — BEGIN IMMEDIATE 手動管理
     try:
-        prev_hash = _get_prev_hash(con, table)
+        # PRAGMA 查詢在鎖外執行（唯讀 metadata），同時白名單過濾 payload 非法欄位
+        biz_row = _get_biz_row(con, table, payload)
         now = int(time.time())
 
-        # 從 schema 補齊所有業務欄位預設值，與 verify_chain.py 讀回邏輯一致
-        biz_row = _get_biz_row(con, table, payload)
+        # BEGIN IMMEDIATE：確保 _get_prev_hash 讀取到 INSERT 的原子性，防並發斷鏈
+        con.execute("BEGIN IMMEDIATE")
+        prev_hash = _get_prev_hash(con, table)
         row_hash = hashlib.sha256(
             (prev_hash + canonical_json(biz_row)).encode("utf-8")
         ).hexdigest()
 
-        row = dict(payload)
+        # 以 PRAGMA 白名單過濾後的 biz_row 建構 INSERT，排除非法欄位
+        row = dict(biz_row)
         row["ingest_ts"] = now
         row["writer"] = writer
         row["prev_hash"] = prev_hash
@@ -123,12 +126,18 @@ def ingest(table: str, payload: dict, writer: str) -> tuple[int, str]:
             f"INSERT INTO [{table}] ({cols}) VALUES ({placeholders})",
             list(row.values()),
         )
-        con.commit()
 
         inserted = con.execute(
             f"SELECT row_id FROM [{table}] WHERE row_hash = ?", (row_hash,)
         ).fetchone()
+        con.execute("COMMIT")
         return inserted[0], row_hash
+    except Exception:
+        try:
+            con.execute("ROLLBACK")
+        except Exception:
+            pass
+        raise
     finally:
         con.close()
 
