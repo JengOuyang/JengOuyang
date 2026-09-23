@@ -107,9 +107,9 @@ class TestMainScript:
             sys, "argv", ["merkle_anchor.py", "--dry-run", "--date", "2026-09-22"]
         )
         import io
-        from contextlib import redirect_stdout
+        from contextlib import redirect_stderr
         buf = io.StringIO()
-        with redirect_stdout(buf):
+        with redirect_stderr(buf):
             rc = ma.main()
         assert rc == 1
         out = json.loads(buf.getvalue())
@@ -162,10 +162,45 @@ class TestMainScript:
         )
         monkeypatch.delenv("INGEST_TOKEN_LEDGER", raising=False)
         import io
-        from contextlib import redirect_stdout
+        from contextlib import redirect_stderr
         buf = io.StringIO()
-        with redirect_stdout(buf):
+        with redirect_stderr(buf):
             rc = ma.main()
         assert rc == 1
         out = json.loads(buf.getvalue())
         assert "INGEST_TOKEN_LEDGER" in out["error"]
+
+    def test_missing_db_error_goes_to_stderr(self, tmp_path, monkeypatch):
+        """錯誤訊息必須輸出到 stderr，Router 才能在失敗時顯示原因。"""
+        monkeypatch.setattr(ma, "DB_PATH", tmp_path / "no.db")
+        monkeypatch.setattr(
+            sys, "argv", ["merkle_anchor.py", "--dry-run", "--date", "2026-09-22"]
+        )
+        import io
+        from contextlib import redirect_stderr, redirect_stdout
+        stdout_buf, stderr_buf = io.StringIO(), io.StringIO()
+        with redirect_stdout(stdout_buf), redirect_stderr(stderr_buf):
+            rc = ma.main()
+        assert rc == 1
+        assert stdout_buf.getvalue() == "", "錯誤時 stdout 應為空"
+        err = json.loads(stderr_buf.getvalue())
+        assert "error" in err
+
+    def test_missing_token_error_goes_to_stderr(self, tmp_path, monkeypatch):
+        """token 缺失錯誤必須輸出到 stderr，Router 才能顯示原因。"""
+        db = tmp_path / "tradedesk.db"
+        _make_db(db)
+        monkeypatch.setattr(ma, "DB_PATH", db)
+        monkeypatch.setattr(
+            sys, "argv", ["merkle_anchor.py", "--date", "2026-09-22"]
+        )
+        monkeypatch.delenv("INGEST_TOKEN_LEDGER", raising=False)
+        import io
+        from contextlib import redirect_stderr, redirect_stdout
+        stdout_buf, stderr_buf = io.StringIO(), io.StringIO()
+        with redirect_stdout(stdout_buf), redirect_stderr(stderr_buf):
+            rc = ma.main()
+        assert rc == 1
+        assert stdout_buf.getvalue() == "", "錯誤時 stdout 應為空"
+        err = json.loads(stderr_buf.getvalue())
+        assert "INGEST_TOKEN_LEDGER" in err["error"]

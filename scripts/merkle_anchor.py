@@ -112,7 +112,7 @@ def main() -> int:
     ).isoformat()
 
     if not DB_PATH.exists():
-        print(json.dumps({"error": f"資料庫不存在：{DB_PATH}"}, ensure_ascii=False))
+        print(json.dumps({"error": f"資料庫不存在：{DB_PATH}"}, ensure_ascii=False), file=sys.stderr)
         return 1
 
     start_ts, end_ts = day_ts_range(date_str)
@@ -137,7 +137,7 @@ def main() -> int:
             print(json.dumps(
                 {"error": "INGEST_TOKEN_LEDGER 未設定，請在 router/.env 補上"},
                 ensure_ascii=False,
-            ))
+            ), file=sys.stderr)
             return 1
         for table in TABLES:
             try:
