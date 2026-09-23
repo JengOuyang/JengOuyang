@@ -1,0 +1,86 @@
+[
+  {
+    "event": "FOMC Rate Decision",
+    "ts_utc": "2026-09-17T18:00:00+00:00",
+    "ts_taipei": "2026-09-18T02:00:00+08:00",
+    "impact": "HIGH",
+    "affects": ["T1", "T4", "T3"]
+  },
+  {
+    "event": "Fed Chair Press Conference",
+    "ts_utc": "2026-09-17T18:30:00+00:00",
+    "ts_taipei": "2026-09-18T02:30:00+08:00",
+    "impact": "HIGH",
+    "affects": ["T1", "T4", "T3"]
+  },
+  {
+    "event": "US Initial Jobless Claims",
+    "ts_utc": "2026-09-24T12:30:00+00:00",
+    "ts_taipei": "2026-09-24T20:30:00+08:00",
+    "impact": "MED",
+    "affects": ["T4", "T1"]
+  },
+  {
+    "event": "US Core PCE Price Index MoM",
+    "ts_utc": "2026-09-25T12:30:00+00:00",
+    "ts_taipei": "2026-09-25T20:30:00+08:00",
+    "impact": "HIGH",
+    "affects": ["T1", "T4", "T3"]
+  },
+  {
+    "event": "US Nonfarm Payrolls (NFP)",
+    "ts_utc": "2026-10-02T12:30:00+00:00",
+    "ts_taipei": "2026-10-02T20:30:00+08:00",
+    "impact": "HIGH",
+    "affects": ["T1", "T4", "T3"]
+  },
+  {
+    "event": "US Unemployment Rate",
+    "ts_utc": "2026-10-02T12:30:00+00:00",
+    "ts_taipei": "2026-10-02T20:30:00+08:00",
+    "impact": "HIGH",
+    "affects": ["T1", "T4", "T3"]
+  },
+  {
+    "event": "FOMC Meeting Minutes",
+    "ts_utc": "2026-10-07T18:00:00+00:00",
+    "ts_taipei": "2026-10-08T02:00:00+08:00",
+    "impact": "HIGH",
+    "affects": ["T1", "T4", "T3"]
+  },
+  {
+    "event": "US CPI YoY",
+    "ts_utc": "2026-10-09T12:30:00+00:00",
+    "ts_taipei": "2026-10-09T20:30:00+08:00",
+    "impact": "HIGH",
+    "affects": ["T1", "T4", "T3"]
+  },
+  {
+    "event": "US Core CPI YoY",
+    "ts_utc": "2026-10-09T12:30:00+00:00",
+    "ts_taipei": "2026-10-09T20:30:00+08:00",
+    "impact": "HIGH",
+    "affects": ["T1", "T4", "T3"]
+  },
+  {
+    "event": "US PPI MoM",
+    "ts_utc": "2026-10-10T12:30:00+00:00",
+    "ts_taipei": "2026-10-10T20:30:00+08:00",
+    "impact": "MED",
+    "affects": ["T4", "T1"]
+  },
+  {
+    "event": "US Retail Sales MoM",
+    "ts_utc": "2026-10-15T12:30:00+00:00",
+    "ts_taipei": "2026-10-15T20:30:00+08:00",
+    "impact": "MED",
+    "affects": ["T4", "T1"]
+  },
+  {
+    "event": "FOMC Rate Decision",
+    "ts_utc": "2026-11-05T19:00:00+00:00",
+    "ts_taipei": "2026-11-06T03:00:00+08:00",
+    "impact": "HIGH",
+    "affects": ["T1", "T4", "T3"]
+  }
+]
