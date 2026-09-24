@@ -125,7 +125,7 @@ agents:
     name: TD-REDTEAM
     kind: llm
     token_env: DISCORD_TOKEN_REDTEAM
-    model: opus
+    model: claude-opus-5-5
     stateless: true             # 盲審：不帶 thread 記憶
     max_turns: 10
     allowed_tools: ["Read", "Bash(python ../../scripts/query_readonly.py *)", "Bash(python ../../backtest/* --verify)"]

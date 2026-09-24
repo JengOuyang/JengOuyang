@@ -36,8 +36,8 @@ jobs:
   - {name: macro-daily-brief, label: "總經日報",   cron: "30 7 * * *",   agent: macro,  channel_env: CH_MACRO,    instruction: "產出今日 MACRO_BRIEF（macro-briefing skill），更新事件日曆。"}
   - {name: macro-event-check, label: "事件檢查",   cron: "0 */2 * * *",  agent: macro,  channel_env: CH_MACRO,    instruction: "未來 4 小時有 HIGH 事件，請發 EVENT_WARNING。", precheck: "python scripts/calendar_update.py --precheck-4h", model: haiku}
   - {name: macro-weekly, label: "總經週報",       cron: "40 20 * * 6",  agent: macro,  channel_env: CH_MACRO,    instruction: "週度總經回顧：本週 regime、我上週判斷的對錯、下週事件行事曆。"}
-  - {name: chart-htf, label: "高時框",           cron: "8 8 * * *",    agent: chart,  channel_env: CH_ANALYSIS, instruction: "對所有啟用層標的產出 HTF_CONTEXT，@REDTEAM 審核。", precheck: "python scripts/daily_close_check.py", model: opus}
-  - {name: chart-htf-retry, label: "高時框重試",           cron: "40 8 * * *",    agent: chart,  channel_env: CH_ANALYSIS, instruction: "對所有啟用層標的產出 HTF_CONTEXT，@REDTEAM 審核。", precheck: "python scripts/daily_close_check.py", model: opus, mutex_with: chart-htf}
+  - {name: chart-htf, label: "高時框",           cron: "8 8 * * *",    agent: chart,  channel_env: CH_ANALYSIS, instruction: "對所有啟用層標的產出 HTF_CONTEXT，@REDTEAM 審核。", precheck: "python scripts/daily_close_check.py", model: claude-opus-5-5}
+  - {name: chart-htf-retry, label: "高時框重試",           cron: "40 8 * * *",    agent: chart,  channel_env: CH_ANALYSIS, instruction: "對所有啟用層標的產出 HTF_CONTEXT，@REDTEAM 審核。", precheck: "python scripts/daily_close_check.py", model: claude-opus-5-5, mutex_with: chart-htf}
   - {name: chart-1h, label: "1H掃描",            cron: "5 * * * *",    agent: chart,  channel_env: CH_ANALYSIS, instruction: "prefilter 發現候選匯合區（見附件 JSON），執行 1H 決策樹。", precheck: "python scripts/prefilter_1h.py"}
   - {name: redteam-htf-review, label: "盲審HTF",  cron: "30 13 * * *",   agent: redteam, channel_env: CH_ANALYSIS, instruction: "盲審今日 HTF_CONTEXT（Router 已附盲審包）。"}
   - {name: audit-daily, label: "交易日報",         cron: "20 8 * * *",   agent: audit,  channel_env: CH_JOURNAL,  instruction: "產出昨日交易日報。"}
@@ -46,14 +46,14 @@ jobs:
   - {name: lab-weekly-ideas, label: "研究提案",    cron: "40 18 * * 6",   agent: lab,    channel_env: CH_BACKTEST, instruction: "提出本週 1–2 個可回測假設。"}
   - {name: audit-weekly, label: "止損週報",        cron: "20 19 * * 6",   agent: audit,  channel_env: CH_JOURNAL,  instruction: "止損解剖週報。"}
   - {name: risk-weekly, label: "風控週報",         cron: "0 20 * * 6",  agent: risk,   channel_env: CH_RISK,     instruction: "風控週報。", model: sonnet}
-  - {name: ceo-weekly-meeting, label: "週會",  cron: "0 21 * * 0",   agent: ceo,    channel_env: CH_MEETING_ROOM, instruction: "主持週會：開 thread、依 agenda 點名、發 MEETING_MINUTES。", model: opus}
+  - {name: ceo-weekly-meeting, label: "週會",  cron: "0 21 * * 0",   agent: ceo,    channel_env: CH_MEETING_ROOM, instruction: "主持週會：開 thread、依 agenda 點名、發 MEETING_MINUTES。", model: claude-opus-5-5}
   - {name: audit-monthly, label: "月報",       cron: "50 23 1 * *",    agent: audit,  channel_env: CH_JOURNAL,  instruction: "L2 月審（OPTIMIZATION_CYCLE §2）：回答六個必答問題、更新 setup 勝率、列出停用候選，簽發月度績效報表。@RISK @CEO"}
   - {name: redteam-monthly-stress, label: "壓力測試", cron: "10 2 5 * *", agent: redteam, channel_env: CH_MEETING_ROOM, instruction: "月度壓力情境檢討。"}
   - {name: watch-weekly, label: "系統週報",        cron: "0 20 * * 0",  agent: watch,  channel_env: CH_AGENT_HEALTH, instruction: "系統健康與用量週報。"}
 
   # ---- 策略季審（OPTIMIZATION_CYCLE §3；1/4/7/10 月）----
   - {name: lab-quarterly-refit, label: "季審回測",  cron: "40 2 7 1,4,7,10 *",  agent: lab,    channel_env: CH_BACKTEST, instruction: "L3 季審第 3–4 步：對本季假設跑完整回測，並用最新資料重跑 walk-forward 檢查參數是否仍在高原（±20% 擾動需保有 70% expectancy）。產出 BACKTEST_REPORT + REFIT_REPORT @REDTEAM。"}
-  - {name: redteam-quarterly-review, label: "季審盲審", cron: "10 2 8 1,4,7,10 *", agent: redteam, channel_env: CH_BACKTEST, instruction: "L3 季審第 5 步：盲審 LAB 的季審報告並自己重跑 --verify，特別審過度擬合徵狀。@RISK", model: opus}
+  - {name: redteam-quarterly-review, label: "季審盲審", cron: "10 2 8 1,4,7,10 *", agent: redteam, channel_env: CH_BACKTEST, instruction: "L3 季審第 5 步：盲審 LAB 的季審報告並自己重跑 --verify，特別審過度擬合徵狀。@RISK", model: claude-opus-5-5}
   - {name: ceo-quarterly-decision, label: "季審送審", cron: "0 16 9 1,4,7,10 *",  agent: ceo,    channel_env: CH_CEO_DAILY, instruction: "L3 季審第 7 步：彙整 LAB/REDTEAM/RISK 結論成一頁 HUMAN_DECISION_REQUIRED（改什麼、為什麼、風險、不改會怎樣），送 Blacksheep 核准。維持現狀也要明說。"}
   - {name: audit-quarterly-evidence, label: "季審證據", cron: "0 16 5 1,4,7,10 *", agent: audit, channel_env: CH_JOURNAL, instruction: "L3 季審第 1 步：交出本季 TRADE_REVIEW 結構化摘要與三個月的假設清單（OPT_EVIDENCE）@LAB。"}
   - {name: macro-quarterly-regime, label: "季審regime", cron: "0 16 6 1,4,7,10 *", agent: macro,  channel_env: CH_MACRO,    instruction: "L3 季審第 2 步：本季 regime 判定（趨勢／震盪／高波動）與前一季比較，供 LAB 回測分段參考。"}
