@@ -486,6 +486,10 @@ async def handle(aid: str, msg: discord.Message, cron_job: str | None = None, mo
                 if out is not None:
                     await send_long(ch, out[-3800:] or "（無輸出）", [])
                     hb(aid, key, "OK")
+                # !approve 核准了 commit → 立即更新 guard 基準，防止已核准的變更觸發後續誤報
+                if key == "owner:!approve" and out is not None:
+                    snap = run_proc([sys.executable, str(ROOT / "scripts" / "guard_paths.py"), "snapshot"], cwd=ROOT)
+                    LOG.info("guard_paths snapshot（!approve 後）：%s", snap.stdout.strip())
             if out is None and a["kind"] == "llm":       # 沒有程式、或程式以 exit 3 交棒 → LLM
                 hist = await thread_history(ch)
                 prompt = build_prompt(aid, msg, hist, cron_job)

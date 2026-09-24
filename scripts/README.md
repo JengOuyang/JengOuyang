@@ -11,7 +11,7 @@
 | `refresh_universe.py` | FEED（每月 T2 名單） | ⬜ |
 | `levels.py` | CHART（OB/FVG/Fib/POC 候選） | ⬜ |
 | `prefilter_1h.py` | Router（無候選輸出 SKIP，省額度） | ⬜ |
-| `merkle_anchor.py` / `crosscheck.py` / `backup.py` / `verify_chain.py` | LEDGER | ⬜ |
+| `merkle_anchor.py` / `crosscheck.py` / `backup.py` / `verify_chain.py` | LEDGER | ✅ / ⬜ / ⬜ / ✅ |
 | `write_macro.py` / `write_plan.py` / `write_review.py` / `write_marketing.py` | 各 Agent 寫入資料倉 | ⬜ |
 | `calendar_update.py` | MACRO（事件日曆，含 `--precheck-4h`） | ⬜ |
 | `heartbeat_check.py` / `usage.py` | WATCH | ⬜ |

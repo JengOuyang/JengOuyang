@@ -21,6 +21,7 @@ agents/*/.context/
 
 # è³‡æ–™èˆ‡åŸ·è¡Œç‹€æ…‹
 data/
+!data/calendar/events.json
 logs/
 router/router_state.db
 marketing/queue/
@@ -40,3 +41,7 @@ __pycache__/
 # ç³»çµ±
 .DS_Store
 Thumbs.db
+
+# Claude Code ¥»¦a³]©w
+.claude/
+agents/forge/worktree/
