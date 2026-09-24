@@ -1,4 +1,5 @@
 {
+  "git_head": "06a8f5ecf29f74e27d9f86046835705e72ce90f2",
   "files": {
     "shared/CONSTITUTION.md": "0608eee5828d9b57a9252cc41e3cf82c162eef7fca6a4fcc990faa0f5a7ccf6c",
     "shared/DATA_SCHEMA.md": "04db85c2b367196c193d6c246a11ce0a6bbc6dfc73370ff0749c4e92c3d17175",
@@ -21,7 +22,7 @@
     "shared/schemas/risk_decision.schema.json": "1cfd37aa12261898b95842780847fb9bdbb3d575a7bc694eeb3f97f315118932",
     "shared/schemas/trade_journal.schema.json": "750ae554a638e25fd2fe7fb68b283cac431308f60e352ee414a09445de24fec5",
     "shared/schemas/trade_plan.schema.json": "5537fd8f24eaedf8d4356d969eecb46fb9c93ed69b14a61f971abf1f79026223",
-    "router/discord_router.py": "00a692dc330ae58efd228db69693c0829ab22a936ca9a6327b432e88e049eb93",
+    "router/discord_router.py": "bb1adb62b2290f6a0e879f0edec3f93d12ed7bc59248162a7da8177524f676ab",
     "router/agents.yaml": "e4d5a19974d9c37a06e666d52eea2dbdc44ceefec101c3d05784ee2dd1aaf5c7",
     "router/scheduler.yaml": "5628355ff7804e5bbfd23a48f79575bdf55611dbc5a8f704d57dfd0508f0a724",
     "router/start.ps1": "62a32a501faae3673e3fec0be02bf7eeb4e291bc52f9317d84099b5d9bdb1368",
@@ -39,7 +40,7 @@
     "scripts/daily_close_check.py": "f8274b744fa7c289c7550392095f431d893be3e1617dbd9390ac8eab47d8e03d",
     "scripts/doctor.py": "79ab380775ebf2fcd8fbc6156b4afeea41d4f1c7e2051ed73820874c409a0131",
     "scripts/feed_status.py": "7bf16b6d116d5dc36c6215543189cbfaebb5a704c9fc2bd30fb0398b973e7e16",
-    "scripts/guard_paths.py": "db2ee5b6b5d64fe1e502d8c0830bbdc606d2dd9746ab4350792eb2f09a332b75",
+    "scripts/guard_paths.py": "303aa103689ef772ba4925b8e67c0f9aebe563581c59dfb275ddac3462eb58f3",
     "scripts/heartbeat_check.py": "b740b764d8a2b6b453cf5914e09692f5c82da8279148ef86cf42e4b61d610bda",
     "scripts/ig_insights.py": "c5577a64537394e877d97e7fbeb42af93a90eecc86d67ab08846110b9fff7199",
     "scripts/init_db.py": "cb6d2513abc47ba536150aac2c4377bccbab756b8864f4b884a815a724fdb0fb",
@@ -67,7 +68,7 @@
     "scripts/verify_isolation.py": "e1d159f6a34b6b8585741a26c21146f686ce3f13e117983710dbc6b2f8795f11",
     "scripts/write_macro.py": "7b4f045fe22945f40edfe73565170d190ae24b1bac4f44a254926c8a8af33831",
     "engine/executor.py": "88c91584c0a6f6f528dbc954be9032ff5224cd20a17089c7d4ca34363dfcb521",
-    "engine/ingest_server.py": "993aa3fa017e9e98bb3d9c23ac0990edba1a24e9225d6726c91c8ef1aa386986",
+    "engine/ingest_server.py": "2270f58e28ac51d7deeed1dbb9e8e9eebf61a97f4de294ceda031dc2c81a5306",
     "engine/risk_gate.py": "7e70681430079ec1ac076cbe53bbdbab33480ed68a2e645793093888e220609e",
     "db/001_schema.sql": "6049d7c2b0ce088cc9986e2e1c382265dbc35036705543d4b2ef20a494b72295",
     "db/002_views.sql": "1f83f592935ea40c2d3b10d878a04971096b5a421f94c3013164de9e2aa04429",
@@ -247,13 +248,13 @@
     "agents/risk/.context/MANIFEST.json": "2572e108fa93c770e3d2307a1ca45d7d31ac846aad3d2d9be2d7741a29192257",
     "agents/watch/.context/MANIFEST.json": "4e81765e7e7ccb840e9e3ed2376bf2b6da49c0d0dda97f76ba502de1fa3fd2ca",
     "tests/test_context_and_grants.py": "edccba119d68c3080324689374738f13bfbbbbf4d200eff4d5acf0c1e4b185df",
-    "tests/test_hashchain.py": "006debefe087479d215345125c59023a11fedb54f2e46d6e0c167c0aba128489",
+    "tests/test_hashchain.py": "c04ce61e78f00208b1de3a74eb2140b9264d9e5184653048f64abe9c93db4a94",
     "tests/test_merkle_anchor.py": "e6642d819c4bd35b447b3f532f3d5ded467386012e7dbc3c961377ac2d0da3b8",
     "tests/test_render_chart.py": "f22d710ae7b760ee9822e928db6f92aa4160d2957d589f6b6f4506820cc95ed3",
     "tests/test_router_handle.py": "2d355c8cd3d75f847af32ebf631185f0acde374b30f17bff8ef5c72087179c95",
     "tests/test_stub_precheck.py": "02154e0a1d3c2a72ca033cff32fa594aaee350d09bac15b1c85b6f76fba1035e",
     "tests/test_verify_chain.py": "bba7274660c91e29d39ab1ae027a4b83dd4af76b7daad63d84ea51dcbd7deed8",
     "tests/test_write_macro.py": "0489cf6dbd7f05381e66831e0472159b4798edb1d9b8bc535e574a6f64531410",
-    ".gitignore": "d139d3e8a314043d7272e08580d22185d9023556e0dfa2285a9d20306ef32db7"
+    ".gitignore": "e3b622e40eb795094bdc4089cb91c285a1d2ccc53c612139bdc01737f29ac4dc"
   }
 }
