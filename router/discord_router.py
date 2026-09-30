@@ -20,6 +20,16 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from td_proc import run as run_proc   # noqa: E402  UTF-8 安全的子程序呼叫
 import td_console  # noqa: E402,F401   （先設好主控台編碼，下面的錯誤訊息才印得出中文）
 
+# venv 與 requirements.txt 同步（BUG_20260926_0710 起累計 8 次 httpx 遺失）。
+# bash scripts/setup_env.sh 在 Windows 上若 bash 不在 PATH 則靜默失敗；
+# 改為在 Python 啟動時直接呼叫 pip，保證使用正確的 venv。
+_req = ROOT / "requirements.txt"
+if _req.exists():
+    subprocess.run(
+        [sys.executable, "-m", "pip", "install", "-q", "-r", str(_req)],
+        capture_output=True, check=False,
+    )
+
 # 相依套件的匯入要給人看得懂的訊息。最常見的原因不是「沒裝」，
 # 是**跑的是系統的 python 而不是 venv 裡那支**——兩者的 traceback 一模一樣，
 # 但處置完全不同。所以這裡把「現在正在用哪支 python」印出來。
