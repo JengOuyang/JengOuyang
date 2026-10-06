@@ -304,9 +304,13 @@ async def run_claude(aid: str, prompt: str, thread_id: str, model_override: str 
 
 async def run_script(aid: str, cmd: str, extra_env: dict) -> str:
     env = {**os.environ, "TD_AGENT": aid, "TD_ROOT": str(ROOT), "TD_DB": str(ROOT / "data" / "tradedesk.db"), **extra_env}
-    # agents.yaml 的指令寫的是裸 `python`。Router 由 start.ps1 以 venv 的 python 啟動但沒有 activate，
-    # shell 會解析到系統 python（沒有 yaml 等套件）→ heartbeat_check 等腳本 ModuleNotFoundError。
-    # 把 Router 自己這支 python 的目錄排到 PATH 最前面，子程序就跟 Router 用同一個環境。
+    # agents.yaml 的指令寫的是裸 `python`。PATH 前置不足夠：Windows App Execution Aliases
+    # 在 cmd.exe 層攔截 `python` 並繞過 PATH 順序（BUG_20261005/20261006 累計第 10+ 次迴歸）。
+    # 直接把 sys.executable 絕對路徑替換進去，完全繞過 PATH 解析。
+    if cmd.startswith("python "):
+        cmd = f'"{sys.executable}" {cmd[len("python "):]}'
+    elif cmd == "python":
+        cmd = f'"{sys.executable}"'
     env["PATH"] = str(Path(sys.executable).parent) + os.pathsep + env.get("PATH", "")
     proc = await asyncio.create_subprocess_shell(cmd, cwd=ROOT, env=env, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
     out, err = await asyncio.wait_for(proc.communicate(), timeout=600)
